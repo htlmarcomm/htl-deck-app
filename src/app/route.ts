@@ -17,7 +17,11 @@ export async function GET(req: Request) {
   if (!user) return Response.redirect(new URL("/login", req.url), 302);
 
   const me = JSON.stringify({ id: user.id, username: user.username, name: user.name, role: user.role }).replace(/</g, "\\u003c");
-  const html = appShell().replace("<head>", `<head><script>window.__HTL_USER__=${me};</script>`);
+  // Share links must use the public address, not whichever (possibly
+  // login-protected) Vercel address this page happens to be opened from.
+  const pub = process.env.PUBLIC_BASE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "");
+  const origin = JSON.stringify(pub.replace(/\/+$/, "")).replace(/</g, "\u003c");
+  const html = appShell().replace("<head>", `<head><script>window.__HTL_USER__=${me};window.__HTL_PUBLIC_ORIGIN__=${origin};</script>`);
   return new Response(html, {
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store" },
   });

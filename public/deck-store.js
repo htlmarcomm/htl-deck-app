@@ -39,6 +39,7 @@
     if (s < 86400 * 30) return Math.floor(s / 86400) + "d ago";
     return new Date(iso).toLocaleDateString();
   }
+  function publicOrigin() { return window.__HTL_PUBLIC_ORIGIN__ || location.origin; }
   function uid() { return "s" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
 
   var css = document.createElement("style");
@@ -337,7 +338,7 @@
     else if (action === "duplicate") api("POST", "/api/decks/" + id + "/duplicate").then(loadDecks).catch(function (er) { alert(er.message); });
     else if (action === "archive") api("PUT", "/api/decks/" + id, { archived: !deck.archived }).then(loadDecks).catch(function (er) { alert(er.message); });
     else if (action === "history") showHistory(deck);
-    else if (action === "copylink") copyText(location.origin + "/s/" + deck.token, item);
+    else if (action === "copylink") copyText(publicOrigin() + "/s/" + deck.token, item);
   }, true);
 
   function copyText(text, btn) {
@@ -399,7 +400,7 @@
   }
 
   function showShare(res, slides) {
-    var url = location.origin + res.url;
+    var url = publicOrigin() + res.url;
     $("shareChromeUrl").textContent = url.replace(/^https?:\/\//, "");
     $("shareCopyLinkBtn").setAttribute("data-share-url", url);
     $("shareOpenLink").href = url;
@@ -432,7 +433,7 @@
             '<span class="pill ' + (l.revoked ? "pill--off" : "pill--live") + '">' + (l.revoked ? "revoked" : "live link") + '</span>' +
             '<span class="timestamp">' + l.views + ' view' + (l.views === 1 ? "" : "s") + '</span>' +
             '<button class="btn btn--sm" data-hist="copy">Copy link</button>' +
-            '<a class="btn btn--sm" href="/s/' + esc(l.token) + '" target="_blank" rel="noopener" style="text-decoration:none;">Open</a>' +
+            '<a class="btn btn--sm" href="' + esc(publicOrigin()) + '/s/' + esc(l.token) + '" target="_blank" rel="noopener" style="text-decoration:none;">Open</a>' +
             '<button class="btn btn--sm" data-hist="' + (l.revoked ? "restore" : "revoke") + '">' + (l.revoked ? "Turn back on" : "Revoke") + '</button></div>';
         }).join("");
         return '<div class="history-row" style="align-items:flex-start;"><div class="history-row__left" style="align-items:flex-start;">' +
@@ -446,7 +447,7 @@
     var b = e.target.closest("[data-hist]");
     if (!b) return;
     var row = b.closest("[data-link]"), id = row.getAttribute("data-link"), what = b.getAttribute("data-hist");
-    if (what === "copy") return copyText(location.origin + "/s/" + row.getAttribute("data-token"), b);
+    if (what === "copy") return copyText(publicOrigin() + "/s/" + row.getAttribute("data-token"), b);
     var call = what === "revoke" ? api("DELETE", "/api/links/" + id) : api("PATCH", "/api/links/" + id, {});
     call.then(function () {
       var pill = row.querySelector(".pill"), off = what === "revoke";
