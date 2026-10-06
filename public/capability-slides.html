@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTL × Hinduja — Project Proposal</title>
+<style>
+:root{--red:#ed1c24;--ink:#151617;--muted:#737373;--line:#e9e9e9;--ease:cubic-bezier(.22,.8,.24,1)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;color:var(--ink);font-family:Inter,Aptos,"Helvetica Neue",Arial,sans-serif}
+button{font:inherit}.stage{position:fixed;inset:0;background:#fff}.screen{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity 1s var(--ease),visibility 1s}.screen.active{opacity:1;visibility:visible}
+.intro{overflow:hidden;background:linear-gradient(180deg,#fafafa 0%,#fff 70%)}.topline{position:absolute;inset:0 0 auto;height:4px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease)}.phase-field .topline,.phase-focus .topline,.phase-merge .topline,.phase-htl .topline{transform:scaleX(1)}
+.logo-field{position:absolute;inset:0}.client-logo{position:absolute;left:50%;top:50%;width:clamp(76px,9vw,150px);height:clamp(44px,6vw,84px);object-fit:contain;opacity:0;filter:grayscale(1);transform:translate(-50%,-50%) scale(.72);transition:left 1.5s var(--ease),top 1.5s var(--ease),opacity 1.1s ease,transform 1.5s var(--ease),filter 1s}
+.phase-field .client-logo{left:calc(50% + var(--x));top:calc(50% + var(--y));opacity:.76;filter:grayscale(.15);transform:translate(-50%,-50%) scale(1)}
+.phase-focus .client-logo{left:calc(50% + var(--x2));top:calc(50% + var(--y2));opacity:.52;filter:grayscale(.65);transform:translate(-50%,-50%) scale(.82)}
+.phase-merge .client-logo{left:calc(50% + var(--mx));top:calc(50% + var(--my));opacity:.88;filter:grayscale(1);transform:translate(-50%,-50%) scale(.2)}.phase-htl .client-logo{left:calc(50% + var(--mx));top:calc(50% + var(--my));opacity:0;filter:grayscale(1);transform:translate(-50%,-50%) scale(.08)}
+.client-logo.hero-client{width:clamp(130px,15vw,230px);height:clamp(130px,15vw,230px);z-index:3}.phase-field .hero-client,.phase-focus .hero-client{left:50%;top:50%;opacity:1;filter:none;transform:translate(-50%,-50%) scale(1)}.phase-merge .hero-client{z-index:1;transform:translate(-50%,-50%) scale(.12)}
+.htl-reveal{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(.985);transition:opacity 1.45s var(--ease),transform 1.8s var(--ease)}.htl-reveal img{width:min(52vw,680px);max-height:220px;object-fit:contain}.phase-merge .htl-reveal{opacity:.1}.phase-htl .htl-reveal{opacity:1;transform:scale(1)}
+.htl-copy{position:absolute;left:50%;top:65%;transform:translateX(-50%);font-size:clamp(10px,1.1vw,15px);font-weight:650;letter-spacing:.18em;color:#555;white-space:nowrap}.htl-client{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font-size:11px;font-weight:750;letter-spacing:.22em;color:var(--red);white-space:nowrap}
+.controls{position:absolute;right:26px;bottom:22px;z-index:20;display:flex;gap:10px}.ghost{border:1px solid #ddd;background:rgba(255,255,255,.85);color:#555;border-radius:999px;padding:9px 15px;font-size:12px;letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(8px)}.ghost:hover{border-color:var(--red);color:var(--red)}
+.progress{position:absolute;left:0;bottom:0;height:3px;background:var(--red);width:0}.playing .progress{animation:progress 8.7s linear forwards}@keyframes progress{to{width:100%}}
+.agenda{display:grid;grid-template-columns:minmax(148px,16vw) 1fr;background:#fff}.rail{background:var(--red);display:grid;place-items:center}.rail span{color:white;font-size:clamp(30px,4.1vw,62px);font-weight:300;letter-spacing:.05em;writing-mode:vertical-rl;transform:rotate(180deg)}
+.agenda-main{padding:clamp(32px,5vw,72px) clamp(38px,7vw,110px) 34px clamp(34px,5vw,72px);display:flex;flex-direction:column;min-width:0}.agenda-head h1{margin:0;font-size:clamp(38px,4.2vw,62px);line-height:1}.agenda-head p{margin:10px 0 23px;color:var(--muted);font-size:clamp(13px,1.2vw,17px)}
+.agenda-list{border-top:1px solid var(--line);flex:1;display:grid;grid-template-rows:repeat(5,1fr)}.agenda-item{appearance:none;border:0;border-bottom:1px solid var(--line);background:#fff;display:grid;grid-template-columns:72px 1fr 48px;align-items:center;text-align:left;padding:8px 0;cursor:pointer;color:inherit;transition:padding .35s var(--ease),background .35s}.agenda-item:hover,.agenda-item:focus-visible{padding-left:14px;background:linear-gradient(90deg,#fff7f7,white 70%);outline:none}.num{font-size:clamp(18px,2vw,27px);font-weight:750;color:var(--red)}.item-title{font-size:clamp(18px,2vw,28px);font-weight:720;line-height:1.15}.item-desc{display:block;margin-top:4px;color:var(--muted);font-size:clamp(11px,1.05vw,15px);font-weight:400}.arrow{font-size:26px;color:#bbb;text-align:right;transition:transform .3s,color .3s}.agenda-item:hover .arrow{transform:translateX(7px);color:var(--red)}
+.section{padding:0 clamp(48px,7vw,100px);background:#fff}.section .bar{height:4px;background:var(--red);position:absolute;inset:0 0 auto}.section-top{position:absolute;left:clamp(48px,7vw,100px);right:clamp(48px,7vw,100px);top:38px;display:flex;justify-content:space-between;font-size:12px;font-weight:750;letter-spacing:.08em}.section-top .label{color:var(--red)}.section-top .meta{color:#999}.section-body{height:100%;display:flex;align-items:center;gap:clamp(38px,6vw,90px)}.section-num{font-size:clamp(92px,13vw,190px);font-weight:800;color:#f1f1f1;line-height:1}.section-copy h2{margin:0;font-size:clamp(42px,5vw,76px);line-height:1.05}.section-copy p{font-size:clamp(20px,2.2vw,31px);color:#5e5e5e;max-width:760px;line-height:1.35}.accent{width:94px;height:5px;background:var(--red);margin-top:42px}.placeholder{margin-top:38px;color:#aaa;font-size:12px;font-weight:750;letter-spacing:.15em}.back{position:absolute;right:clamp(48px,7vw,100px);bottom:42px;border:0;background:transparent;color:var(--red);font-size:12px;font-weight:750;letter-spacing:.08em;cursor:pointer}.back:hover{text-decoration:underline}.hint{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);font-size:10px;color:#aaa;letter-spacing:.08em}
+.fade-cover{position:fixed;inset:0;z-index:100;background:white;opacity:0;pointer-events:none;transition:opacity .48s ease}.fade-cover.on{opacity:1}
+.about-nav{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:4px;z-index:20;padding:6px;border:1px solid rgba(0,0,0,.09);border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 12px 36px rgba(0,0,0,.12);backdrop-filter:blur(14px)}.about-nav button{border:0;background:transparent;color:#838383;border-radius:999px;font-size:10px;font-weight:780;letter-spacing:.08em;white-space:nowrap;cursor:pointer;padding:10px 15px;transition:color .25s,background .25s}.about-nav button.active,.about-nav button:hover{color:#fff;background:var(--red)}
+.who{background:#fff}.who-grid{height:100%;display:grid;grid-template-columns:47% 53%;grid-template-rows:1fr 168px}.map-panel{position:relative;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#fafafa,#f2f2f2)}.globe{position:relative;width:min(36vw,460px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:#fff;border:1px solid #ddd;box-shadow:inset -42px -22px 70px rgba(0,0,0,.12),0 35px 70px rgba(0,0,0,.13)}.globe .map-crop{position:absolute;inset:0;overflow:hidden;border-radius:50%}.globe .map-crop img{position:absolute;left:-4%;top:8%;width:220%;height:auto;opacity:.78;mix-blend-mode:multiply}.globe:before,.globe:after{content:'';position:absolute;inset:4%;border:1px solid rgba(0,0,0,.11);border-radius:50%;z-index:2}.globe:before{transform:scaleX(.42)}.globe:after{transform:scaleY(.42)}.who-copy{padding:7vh 7vw 4vh 4vw;display:flex;flex-direction:column;justify-content:center}.who-copy .eyebrow{color:var(--red);font-size:12px;font-weight:800;letter-spacing:.18em}.who-copy h2{font-size:clamp(45px,5.3vw,80px);line-height:.95;margin:14px 0 25px;letter-spacing:-.05em}.who-copy p{font-size:clamp(14px,1.25vw,19px);line-height:1.5;color:#222;margin:0 0 20px;max-width:700px}.timeline{grid-column:1/-1;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding:22px 5vw 54px}.milestone{text-align:center;position:relative}.milestone:before{content:'';position:absolute;left:50%;top:-29px;width:12px;height:12px;border-radius:50%;background:var(--red);transform:translateX(-50%)}.milestone b{display:block;font-size:15px;color:#666}.milestone span{display:block;margin-top:7px;color:var(--red);font-size:10px;line-height:1.25;letter-spacing:.04em}.hni{background:#fff;color:var(--ink);overflow:hidden}.hni-head{position:absolute;left:0;top:0;bottom:0;width:29%;padding:8vh 3.8vw;background:#f4f4f2;z-index:2;border-right:1px solid #e5e5e5}.hni-head .eyebrow{color:var(--red);font-size:12px;font-weight:800;letter-spacing:.2em}.hni-head h2{font-size:clamp(48px,5.7vw,88px);line-height:.9;margin:20px 0 0;letter-spacing:-.055em}.hni-head h2 span{display:block;color:#9a9a9a;font-weight:300}.hni-projects-label{position:absolute;left:3.8vw;bottom:13vh;color:#151617;font-size:11px;font-weight:800;letter-spacing:.16em;border-bottom:2px solid var(--red);padding-bottom:12px;width:21vw}.hni-wall{position:absolute;left:29%;right:0;top:0;bottom:0;padding:5vh 5vw 9vh;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);column-gap:4vw;row-gap:3vh;background:#fff}.hni-logo{color:#151617;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;min-width:0;border-bottom:1px solid #ececec;position:relative;padding:1.5vh 0}.hni-logo:before{content:'';position:absolute;left:0;top:0;width:0;height:3px;background:var(--red);transition:width .4s var(--ease)}.hni-logo:hover:before{width:100%}.hni-logo img{display:block;width:100%;height:82px;object-fit:contain;object-position:left center;filter:none;opacity:1;transition:transform .45s var(--ease)}.hni-logo:hover img{transform:translateY(-4px)}.hni-logo strong{font-size:clamp(13px,1.15vw,17px);margin-top:19px;line-height:1.2}.hni-logo small{color:#777;font-size:11px;margin-top:5px}.hgroup{background:#fff;color:#151617;padding:3.2vh 3vw 9vh;overflow:hidden}.hg-head{height:92px;border-bottom:1px solid #bdbdbd;display:grid;grid-template-columns:minmax(360px,430px) 1fr 330px;align-items:start;gap:28px}.hg-head h2{margin:0;color:#d71920;font-size:clamp(36px,2.7vw,48px);font-weight:500;letter-spacing:-.035em;line-height:1;white-space:nowrap}.hg-head p{font-size:10px;line-height:1.45;color:#666;margin:3px 0 0;max-width:500px}.legend{background:#f6f5f3;padding:8px 12px;display:grid;gap:6px;border-radius:14px}.legend span{background:#fff;border:1px solid #dedede;border-radius:999px;padding:5px 10px;font-size:8px;color:#555;white-space:nowrap}.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;background:#aaa}.legend .green{background:#299d36}.hg-grid{display:grid;grid-template-columns:1.08fr 1.55fr 1.08fr 1.08fr 1.08fr 1.2fr;gap:22px;height:calc(100% - 102px);padding-top:28px;align-items:start}.sector{min-width:0;text-align:center;position:relative;padding-top:14px}.sector:before{content:'';position:absolute;left:50%;top:-28px;height:27px;width:1px;background:#8b8b8b}.sector-title{font-size:clamp(11px,.95vw,15px);font-weight:800;height:34px;display:grid;place-items:center;line-height:1.12}.group-card{height:74px;border:1px solid #dfdfdf;border-radius:16px;background:#fff;padding:12px;display:grid;place-items:center;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.035)}.group-card img{display:block;width:100%;height:50px;max-width:100%;max-height:50px;object-fit:contain}.group-note{font-size:7px;line-height:1.25;color:#555;height:25px;padding-top:5px;overflow:hidden}.branch{width:1px;height:21px;background:#aaa;margin:5px auto 0}.subhead{font-size:9px;color:#666;letter-spacing:.06em;height:25px;display:grid;place-items:center}.cards{display:grid;gap:10px}.cards.two{grid-template-columns:repeat(2,minmax(0,1fr))}.project-card{border:1px solid #d9d9d9;border-radius:15px;background:#fff;padding:9px;min-height:82px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.035)}.project-card.peer:before{content:'';position:absolute;left:9px;top:8px;width:5px;height:5px;border-radius:50%;background:#333}.project-card img{display:block;width:100%;height:32px;max-width:100%;max-height:32px;object-fit:contain}.project-card .place{font-size:10px;color:#555;margin-top:8px;line-height:1.2}.entity-tag{color:#4d8b3f;background:#e9ffd9;border-radius:999px;padding:3px 7px;font-size:6px;letter-spacing:.04em;margin-bottom:7px}.entity-tag:before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#16aa43;margin-right:5px}.entity-card{border-radius:25px;min-height:128px}.entity-card img{height:40px;max-height:40px}.entity-card .place{font-size:11px;color:#333}.auto-cards .wide{grid-column:1/-1}.why{background:#fff}.why-inner{padding:8vh 6vw;height:100%;display:flex;flex-direction:column}.why-title{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:30px}.why-title h2{font-size:clamp(58px,7vw,108px);line-height:.9;margin:0;color:var(--red);letter-spacing:-.06em}.why-title p{max-width:610px;font-size:clamp(15px,1.4vw,21px);line-height:1.45;color:#555;margin:0}.pillars{flex:1;display:grid;grid-template-columns:repeat(4,1fr);margin-top:24px}.pillar{padding:3vh 2vw;border-right:1px solid var(--line);position:relative;transition:background .4s,color .4s}.pillar:first-child{padding-left:0}.pillar:last-child{border:0}.pillar:hover{background:var(--ink);color:white}.pillar .pn{font-size:clamp(50px,6vw,88px);font-weight:800;color:var(--red);line-height:1}.pillar h3{font-size:clamp(17px,1.5vw,24px);line-height:1.15;margin:4vh 0 20px;max-width:230px}.pillar p{font-size:clamp(13px,1.05vw,16px);line-height:1.5;color:#666;max-width:250px}.pillar:hover p{color:#bbb}
+@media(max-width:700px){.agenda{grid-template-columns:58px 1fr}.rail span{font-size:24px}.agenda-main{padding:28px 20px}.agenda-item{grid-template-columns:48px 1fr 24px}.item-desc{display:none}.section-body{flex-direction:column;justify-content:center;align-items:flex-start;gap:8px}.section-num{font-size:74px}.section-top .meta{display:none}.hint{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}.client-logo{display:none}}
+
+@media(max-width:1100px){
+ .hgroup{padding:3vh 18px 72px}
+ .hg-head{height:102px;grid-template-columns:260px 1fr;gap:18px}
+ .hg-head h2{font-size:31px;letter-spacing:-.025em}
+ .hg-head p{font-size:7.5px;line-height:1.45;max-width:330px;padding-top:1px}
+ .legend{position:absolute;right:18px;top:66px;padding:4px 7px;display:flex;gap:4px}
+ .legend span{font-size:6px;padding:4px 7px}
+ .hg-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;height:calc(100% - 110px);padding-top:24px}
+ .sector{padding-top:10px}.sector:before{top:-24px;height:23px}
+ .sector-title{font-size:8px;height:28px}
+ .group-card{height:56px;padding:6px;border-radius:11px}.group-card img{height:41px;max-height:41px}
+ .group-note{font-size:5.5px;height:20px;padding-top:3px}.branch{height:14px;margin-top:3px}
+ .subhead{font-size:6.5px;height:20px}.cards{gap:5px}.cards.two{gap:4px}
+ .project-card{min-height:62px;padding:4px;border-radius:10px}.project-card img{height:24px;max-height:24px}
+ .project-card .place{font-size:7px;margin-top:5px}.project-card.peer:before{left:5px;top:5px;width:4px;height:4px}
+ .entity-card{min-height:94px;border-radius:18px}.entity-card img{height:29px;max-height:29px}.entity-card .place{font-size:8px}
+ .entity-tag{font-size:4.5px;padding:2px 4px;margin-bottom:4px}.auto-cards .wide{grid-column:1/-1}
+ .about-nav button{font-size:8px;padding:8px 10px}
+}
+
+/* project-section-v2 */
+.project-slide{background:#f7f7f5;color:#151617;overflow:hidden}.project-shell{height:100%;padding:4.2vh 4.2vw 82px;display:flex;flex-direction:column}.project-header{height:72px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #d9d9d6}.project-header .section-kicker{color:var(--red);font-size:10px;font-weight:800;letter-spacing:.18em}.project-header .slide-name{font-size:10px;color:#777;letter-spacing:.12em}.project-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,39%) 1fr;gap:clamp(28px,4vw,66px);padding-top:4vh}.project-copy{display:flex;flex-direction:column;justify-content:center}.project-copy .eyebrow{color:var(--red);font-size:10px;font-weight:800;letter-spacing:.17em;margin-bottom:12px}.project-copy h2{font-size:clamp(42px,5.6vw,82px);font-weight:300;line-height:.88;letter-spacing:-.055em;margin:0 0 3.2vh}.project-copy h2 strong{display:block;font-weight:780}.project-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.project-fact{background:#fff;border:1px solid #e1e1de;border-radius:18px;padding:16px 17px;min-height:92px;box-shadow:0 10px 30px rgba(0,0,0,.035)}.project-fact.wide{grid-column:1/-1}.project-fact b{display:block;font-size:9px;color:#777;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}.project-fact span{display:block;font-size:clamp(13px,1.25vw,17px);line-height:1.35}.map-card{position:relative;min-width:0;min-height:0;border-radius:30px;overflow:hidden;background:#e9eef2;box-shadow:0 25px 60px rgba(21,22,23,.13)}.map-card img{width:100%;height:100%;object-fit:cover}.map-label{position:absolute;left:22px;bottom:22px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-radius:999px;padding:10px 15px;font-size:9px;font-weight:800;letter-spacing:.12em;box-shadow:0 8px 25px rgba(0,0,0,.12);backdrop-filter:blur(12px)}
+.project-subnav{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:24;display:flex;gap:4px;padding:6px;border:1px solid rgba(0,0,0,.09);border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 12px 36px rgba(0,0,0,.11)}.project-subnav button{border:0;border-radius:999px;background:transparent;color:#808080;padding:10px 16px;font-size:9px;font-weight:800;letter-spacing:.08em;cursor:pointer}.project-subnav button.active,.project-subnav button:hover{background:var(--red);color:#fff}
+.report-slide{background:#fff;color:#151617;overflow:hidden}.report-shell{height:100%;padding:3.7vh 4vw 82px;display:flex;flex-direction:column}.report-header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #dedede;padding-bottom:17px}.report-header .kicker{color:var(--red);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:8px}.report-header h2{font-size:clamp(36px,4.2vw,66px);line-height:.9;margin:0;letter-spacing:-.045em}.report-header h2 span{font-weight:300}.report-date{font-size:11px;color:#666;letter-spacing:.1em;padding-bottom:5px}.report-layout{flex:1;min-height:0;display:grid;grid-template-columns:40% 1fr;gap:clamp(28px,3.6vw,58px);padding-top:3.2vh}.report-visual{display:flex;min-height:0;flex-direction:column}.site-photo{position:relative;flex:1;min-height:0;border-radius:24px;overflow:hidden;background:#eee}.site-photo img{width:100%;height:100%;object-fit:cover}.photo-caption{position:absolute;left:15px;bottom:15px;background:rgba(20,20,20,.8);color:#fff;border-radius:999px;padding:8px 12px;font-size:8px;letter-spacing:.11em}.report-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}.report-tabs button{border:1px solid #d8d8d8;background:#fff;border-radius:14px;padding:12px 10px;text-align:left;cursor:pointer;transition:.25s}.report-tabs button:hover,.report-tabs button.active{border-color:var(--red);background:#fff4f4}.report-tabs b{display:block;font-size:9px;letter-spacing:.08em}.report-tabs span{display:block;color:#777;font-size:8px;margin-top:3px}.report-tabs button.active b{color:var(--red)}.report-content{min-width:0;min-height:0;position:relative}.report-panel{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateY(10px);transition:.35s var(--ease)}.report-panel.active{opacity:1;visibility:visible;transform:none}.insight-grid{height:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,1fr);gap:10px}.insight{border:1px solid #e1e1e1;border-radius:18px;padding:14px 15px;overflow:hidden;position:relative;background:#fafaf9}.insight:before{content:attr(data-n);position:absolute;right:12px;top:7px;font-size:29px;font-weight:800;color:#ececeb}.insight h3{position:relative;margin:0 0 8px;max-width:80%;font-size:clamp(11px,1.05vw,15px);line-height:1.15}.insight p{position:relative;margin:0;color:#5e5e5e;font-size:clamp(8px,.78vw,11px);line-height:1.38}.latest-empty{height:100%;border:1px dashed #cfcfca;border-radius:24px;background:linear-gradient(135deg,#fafafa,#f3f3f0);display:grid;place-items:center;text-align:center;padding:32px}.latest-empty .pending-mark{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;background:#fff;border:1px solid #ddd;color:var(--red);font-size:24px}.latest-empty h3{font-size:clamp(24px,3vw,42px);margin:0 0 10px}.latest-empty p{font-size:12px;color:#666;line-height:1.5;max-width:430px;margin:0 auto}.latest-empty .pending-pill{display:inline-block;margin-top:20px;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid #ddd;color:#777;font-size:8px;font-weight:800;letter-spacing:.12em}
+.deck-menu-toggle{position:fixed;right:22px;top:20px;z-index:80;border:1px solid rgba(0,0,0,.12);border-radius:999px;background:rgba(255,255,255,.94);padding:10px 14px;color:#222;font-size:9px;font-weight:800;letter-spacing:.13em;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.09);backdrop-filter:blur(12px)}.deck-menu-toggle:before{content:'☰';margin-right:7px;color:var(--red)}.deck-menu-backdrop{position:fixed;inset:0;z-index:81;background:rgba(15,15,15,.24);opacity:0;visibility:hidden;transition:.35s}.deck-menu-backdrop.open{opacity:1;visibility:visible}.deck-menu{position:absolute;right:0;top:0;bottom:0;width:min(390px,88vw);background:#fff;padding:28px 28px 30px;transform:translateX(100%);transition:.45s var(--ease);overflow:auto;box-shadow:-24px 0 70px rgba(0,0,0,.18)}.deck-menu-backdrop.open .deck-menu{transform:none}.deck-menu-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e8;padding-bottom:18px;margin-bottom:20px}.deck-menu-head strong{font-size:22px}.deck-menu-close{border:0;background:#f3f3f3;border-radius:50%;width:34px;height:34px;cursor:pointer}.menu-group{margin:19px 0}.menu-group-title{font-size:8px;font-weight:850;color:var(--red);letter-spacing:.16em;margin-bottom:7px}.menu-slide{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:0;background:transparent;border-radius:11px;padding:9px 10px;cursor:pointer;color:#555;font-size:11px}.menu-slide:hover,.menu-slide.active{background:#f3f3f1;color:#111}.menu-slide.active{font-weight:800}.menu-slide span{width:21px;color:#aaa;font-size:8px}.deck-arrows{position:fixed;right:20px;bottom:18px;z-index:70;display:flex;border:1px solid rgba(0,0,0,.1);border-radius:999px;background:rgba(255,255,255,.95);padding:4px;box-shadow:0 10px 28px rgba(0,0,0,.1)}.deck-arrows button{width:37px;height:37px;border:0;border-radius:50%;background:transparent;font-size:18px;cursor:pointer;color:#333}.deck-arrows button:hover:not(:disabled){background:var(--red);color:#fff}.deck-arrows button:disabled{opacity:.25;cursor:default}.deck-ui-hidden .deck-menu-toggle,.deck-ui-hidden .deck-arrows{opacity:0;pointer-events:none}
+@media(max-width:900px){.project-shell{padding:25px 26px 74px}.project-header{height:56px}.project-body{grid-template-columns:38% 1fr;gap:22px;padding-top:20px}.project-copy h2{font-size:38px;margin-bottom:18px}.project-fact{padding:11px 12px;min-height:72px;border-radius:13px}.project-fact span{font-size:10px}.map-card{border-radius:20px}.report-shell{padding:24px 26px 74px}.report-header h2{font-size:34px}.report-layout{gap:22px;padding-top:20px}.insight{padding:10px 11px;border-radius:13px}.insight h3{font-size:9px;margin-bottom:5px}.insight p{font-size:7px}.insight:before{font-size:21px}.report-tabs button{padding:9px 8px}.deck-menu-toggle{right:15px;top:13px}.deck-arrows{right:14px;bottom:14px}}
+
+/* project-section-polish */
+.project-header .slide-name{margin-right:100px}.map-card,.site-photo{margin:0}.report-date{padding-right:100px}
+
+/* floor-and-report-v3 */
+.report-date{padding:8px 100px 8px 13px!important;border:1px solid #f1b7b9;border-radius:999px;background:#fff5f5;color:var(--red)!important;font-weight:850;letter-spacing:.12em}.report-layout{grid-template-columns:42% 1fr!important;gap:clamp(22px,3vw,44px)!important}.report-visual{min-width:0}.visual-stage{position:relative;flex:1;min-height:0}.visual-panel{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transform:translateY(8px);transition:.38s var(--ease)}.visual-panel.active{opacity:1;visibility:visible;transform:none}.visual-panel.single-photo{overflow:hidden;border-radius:22px}.visual-panel.single-photo img{width:100%;height:100%;object-fit:cover}.latest-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:9px}.latest-gallery figure{margin:0;overflow:hidden;border-radius:15px;background:#eee}.latest-gallery img{width:100%;height:100%;object-fit:cover}.insight-grid{height:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;gap:9px!important;align-content:start}.insight{min-height:0!important;height:auto!important;padding:14px 15px!important;border-radius:15px!important;background:#fafaf9}.insight:last-child:nth-child(odd){grid-column:1/-1}.insight:before{font-size:27px!important}.insight h3{font-size:clamp(12px,1.15vw,16px)!important;margin-bottom:7px!important}.insight p{font-size:clamp(9px,.87vw,12px)!important;line-height:1.42!important}.report-content{overflow:hidden}.report-panel{overflow:auto;padding-right:2px}.latest-observations{display:grid;gap:8px;align-content:start}.latest-observation{position:relative;border:1px solid #e0e0de;border-radius:14px;background:#fafaf9;padding:12px 14px 12px 49px}.latest-observation .obs-num{position:absolute;left:13px;top:12px;color:var(--red);font-size:9px;font-weight:850;letter-spacing:.08em}.latest-observation h3{margin:0 0 5px;font-size:clamp(11px,1.05vw,15px)}.latest-observation p{margin:0;color:#5f5f5f;font-size:clamp(8.5px,.82vw,11.5px);line-height:1.4}.report-tabs button .tab-date{color:#777;font-weight:700}.report-tabs button.active .tab-date{color:var(--red)}
+.floor-slide{background:#f7f7f5;color:#151617;overflow:hidden}.floor-shell{height:100%;padding:3.6vh 4vw 82px;display:flex;flex-direction:column}.floor-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #d9d9d6;padding-bottom:15px;height:64px}.floor-header .kicker{color:var(--red);font-size:10px;font-weight:800;letter-spacing:.18em}.floor-header .view-label{margin-right:100px;color:#777;font-size:9px;letter-spacing:.12em}.floor-layout{flex:1;min-height:0;display:grid;grid-template-columns:47% 1fr;gap:3vw;padding-top:18px;position:relative}.floor-info{min-height:0;display:flex;flex-direction:column}.floor-title{font-size:clamp(34px,4.6vw,64px);line-height:.88;letter-spacing:-.05em;margin:0 0 16px}.floor-title strong{display:block}.floor-title span{font-weight:300}.floor-window{flex:1;min-height:0;overflow:hidden;position:relative;border-top:1px solid #d8d8d5}.floor-window:after{content:'';position:absolute;left:0;right:0;bottom:0;height:32px;background:linear-gradient(transparent,#f7f7f5);pointer-events:none}.floor-track{transition:transform 1.15s var(--ease);will-change:transform}.floor-slide.upper .floor-track{transform:translateY(-336px)}.floor-row{height:56px;border-bottom:1px solid #d8d8d5;display:grid;grid-template-columns:112px 1fr;align-items:center}.floor-row .level{font-size:12px;font-weight:780;color:#a5a5a1;letter-spacing:.05em}.floor-row .use{font-size:12px;color:#222;letter-spacing:.02em}.building-stage{position:relative;min-height:0;overflow:hidden;border-radius:24px;background:#fff;box-shadow:0 20px 55px rgba(0,0,0,.08)}.building-stage:after{content:'';position:absolute;inset:auto 0 0;height:24%;background:linear-gradient(transparent,rgba(255,255,255,.86));pointer-events:none}.building-stage img{position:absolute;left:8%;width:84%;height:auto;bottom:-8%;filter:contrast(.92);transform:translateY(-15%);transition:transform 1.25s var(--ease);will-change:transform}.floor-slide.upper .building-stage img{transform:translateY(10%)}.floor-toggle{position:absolute;left:47%;top:50%;z-index:4;transform:translate(-50%,-50%);width:58px;height:58px;border:5px solid #fff;border-radius:50%;background:var(--red);color:#fff;font-size:28px;font-weight:700;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 28px rgba(237,28,36,.26);transition:transform .35s var(--ease)}.floor-toggle:hover{transform:translate(-50%,-50%) scale(1.06)}
+@media(max-width:900px){.report-date{padding-right:86px!important}.visual-panel.single-photo{border-radius:17px}.latest-gallery{gap:6px}.latest-gallery figure{border-radius:11px}.insight{padding:10px 11px!important}.insight h3{font-size:10px!important}.insight p{font-size:7.8px!important}.latest-observation{padding:9px 10px 9px 39px}.latest-observation .obs-num{left:10px;top:9px}.latest-observation h3{font-size:9.5px}.latest-observation p{font-size:7.5px}.floor-shell{padding:24px 26px 74px}.floor-header{height:54px}.floor-layout{padding-top:14px}.floor-title{font-size:35px;margin-bottom:12px}.floor-row{height:48px;grid-template-columns:82px 1fr}.floor-row .level,.floor-row .use{font-size:8.5px}.floor-slide.upper .floor-track{transform:translateY(-288px)}.floor-toggle{width:46px;height:46px;font-size:22px}.building-stage{border-radius:18px}}
+
+
+/* metrics-and-hinduja-group-v4 */
+.who-grid{grid-template-rows:1fr 150px!important}.timeline.metrics-strip{grid-column:1/-1;border-top:1px solid #dededb;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:0;padding:20px 4vw 55px!important;background:#fff}.timeline.metrics-strip .metric{position:relative;padding:0 14px;border-right:1px solid #e5e5e2}.timeline.metrics-strip .metric:last-child{border-right:0}.timeline.metrics-strip .metric strong{display:block;color:var(--red);font-size:clamp(20px,2.25vw,34px);line-height:1;font-weight:850;letter-spacing:-.035em}.timeline.metrics-strip .metric span{display:block;margin-top:7px;color:#666;font-size:clamp(7px,.72vw,10px);line-height:1.16;letter-spacing:.045em;text-transform:uppercase}.timeline.metrics-strip .metric:before{display:none}
+.hgroup.hg-v4{position:relative;background:#fff;color:#151617;padding:3.6vh 3.8vw 132px!important;overflow:hidden}.hg-v4 .hg-head{height:116px!important;border-bottom:1px solid #d9d9d6!important;display:grid!important;grid-template-columns:40% 1fr!important;align-items:end!important;gap:42px!important;padding-bottom:18px}.hg-v4 .hg-title-wrap{align-self:end}.hg-v4 .hg-kicker{color:var(--red);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:10px}.hg-v4 .hg-head h2{margin:0!important;color:#151617!important;font-size:clamp(42px,4.8vw,68px)!important;font-weight:400!important;letter-spacing:-.05em!important;line-height:.88!important;white-space:nowrap}.hg-v4 .hg-head h2 strong{font-weight:850}.hg-v4 .hg-head p{font-size:clamp(9px,.83vw,12px)!important;line-height:1.48!important;color:#666!important;margin:0 100px 2px 0!important;max-width:620px!important}.hg-v4 .hg-grid{display:grid!important;grid-template-columns:1.08fr 1.52fr 1.08fr 1.08fr 1.28fr 1.16fr!important;gap:16px!important;height:calc(100% - 126px)!important;padding-top:22px!important;align-items:start!important}.hg-v4 .sector{padding-top:10px!important}.hg-v4 .sector:before{top:-22px!important;height:22px!important;background:#a9a9a5!important}.hg-v4 .sector-title{font-size:clamp(9px,.86vw,13px)!important;height:29px!important}.hg-v4 .group-card{height:62px!important;border-radius:13px!important;padding:8px!important;background:#fff!important}.hg-v4 .group-card img{height:44px!important;max-height:44px!important;object-fit:contain!important}.hg-v4 .group-note{font-size:6px!important;height:18px!important;padding-top:3px!important}.hg-v4 .branch{height:14px!important;margin-top:3px!important}.hg-v4 .subhead{font-size:7px!important;height:20px!important;letter-spacing:.07em!important}.hg-v4 .cards{gap:7px!important}.hg-v4 .project-card{min-height:62px!important;border-radius:13px!important;padding:7px!important}.hg-v4 .project-card img{height:26px!important;max-height:26px!important;object-fit:contain!important}.hg-v4 .project-card .place{font-size:8px!important;margin-top:5px!important}.hg-v4 .entity-card{min-height:92px!important;border-radius:20px!important}.hg-v4 .entity-card img{height:34px!important;max-height:34px!important}.hg-v4 .entity-tag{font-size:5px!important;margin-bottom:5px!important}.hg-v4 .also{font-size:6px;color:#858581;letter-spacing:.07em;margin:7px 0 5px}.hg-v4 .bfi-peers{grid-template-columns:repeat(2,minmax(0,1fr))!important}.hg-v4 .bfi-peers .project-card{min-height:52px!important}.hg-v4 .bfi-peers img{height:19px!important;max-height:19px!important}.hg-v4 .hg-legend{position:absolute;left:50%;bottom:77px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;z-index:4}.hg-v4 .hg-legend span{display:flex;align-items:center;border:1px solid #dededb;border-radius:999px;background:#fff;padding:6px 11px;color:#676767;font-size:7px;white-space:nowrap;box-shadow:0 5px 14px rgba(0,0,0,.035)}.hg-v4 .hg-legend i{display:block;width:7px;height:7px;border-radius:50%;background:#aaa;margin-right:7px}.hg-v4 .hg-legend .green{background:#22a447}
+@media(max-width:900px){.who-grid{grid-template-rows:1fr 136px!important}.timeline.metrics-strip{padding:17px 2.4vw 53px!important}.timeline.metrics-strip .metric{padding:0 7px}.timeline.metrics-strip .metric strong{font-size:20px}.timeline.metrics-strip .metric span{font-size:6.1px}.hgroup.hg-v4{padding:24px 26px 126px!important}.hg-v4 .hg-head{height:104px!important;grid-template-columns:39% 1fr!important;gap:24px!important;padding-bottom:14px}.hg-v4 .hg-head h2{font-size:40px!important}.hg-v4 .hg-head p{font-size:7.3px!important;margin-right:74px!important}.hg-v4 .hg-grid{gap:8px!important;padding-top:16px!important;height:calc(100% - 112px)!important}.hg-v4 .sector:before{top:-16px!important;height:16px!important}.hg-v4 .sector-title{font-size:7.2px!important;height:24px!important}.hg-v4 .group-card{height:48px!important;padding:5px!important}.hg-v4 .group-card img{height:36px!important;max-height:36px!important}.hg-v4 .group-note{font-size:4.5px!important;height:14px!important}.hg-v4 .branch{height:9px!important}.hg-v4 .subhead{font-size:5.5px!important;height:16px!important}.hg-v4 .project-card{min-height:48px!important;padding:5px!important}.hg-v4 .project-card img{height:20px!important;max-height:20px!important}.hg-v4 .project-card .place{font-size:6.6px!important}.hg-v4 .entity-card{min-height:69px!important}.hg-v4 .entity-card img{height:26px!important;max-height:26px!important}.hg-v4 .also{font-size:5px;margin:4px 0}.hg-v4 .bfi-peers .project-card{min-height:40px!important}.hg-v4 .bfi-peers img{height:14px!important;max-height:14px!important}.hg-v4 .hg-legend{bottom:70px}.hg-v4 .hg-legend span{font-size:5.5px;padding:4px 8px}}
+
+
+/* hinduja-logo-sizing-v4b */
+.hg-v4 .group-card img,.hg-v4 .project-card img{transform-origin:center;transition:transform .35s ease}
+.hg-v4 .hg-grid .sector:nth-child(2)>.group-card img{transform:scale(2.15)}
+.hg-v4 .hg-grid .sector:nth-child(2) .auto-cards .wide img{transform:scale(2.05)}
+.hg-v4 .hg-grid .sector:nth-child(3)>.group-card img{transform:scale(1.28)}
+.hg-v4 .hg-grid .sector:nth-child(3) .project-card img{transform:scale(1.3)}
+
+
+/* standardized-interactions-v5 */
+.deck-ui-hidden .deck-menu-toggle{opacity:1!important;pointer-events:auto!important}.deck-menu-toggle{display:block!important}
+.screen>.about-nav{position:absolute!important;left:50%!important;bottom:18px!important;transform:translateX(-50%)!important;z-index:24!important;gap:6px!important;padding:6px 8px!important}.screen>.about-nav button{padding:10px 18px!important;white-space:nowrap!important}.hgroup.hg-v4{position:absolute!important;inset:0!important}.hgroup.hg-v4 .hg-legend{bottom:78px!important}
+.agenda-item{position:relative;z-index:2;pointer-events:auto!important}.agenda-item:hover,.agenda-item:focus-visible{padding-left:18px!important;background:linear-gradient(90deg,#fff4f4 0%,#fff 76%)!important}.agenda-item:hover .item-title,.agenda-item:focus-visible .item-title{color:var(--red)}.agenda-item:active{transform:scale(.995)}
+.hni-logo{cursor:pointer!important;outline:none;transition:transform .38s var(--ease),background .38s,border-color .38s!important}.hni-logo:hover,.hni-logo:focus-visible{transform:translateY(-5px);background:#fff8f8!important}.hni-logo.selected{background:#fff4f4!important;border-color:#f2b6b8!important}.hni-logo.selected:before{width:100%!important}.hni-detail{position:absolute;left:3.8vw;right:3.2vw;bottom:12.5vh;border-top:1px solid #d6d6d3;padding-top:16px;min-height:112px}.hni-detail .detail-label{color:var(--red);font-size:8px;font-weight:850;letter-spacing:.15em}.hni-detail .detail-empty{margin-top:10px;color:#777;font-size:11px;line-height:1.4}.hni-detail .detail-selected{display:none;margin-top:10px}.hni-detail.has-selection .detail-empty{display:none}.hni-detail.has-selection .detail-selected{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center}.hni-detail img{width:72px;height:42px;object-fit:contain;object-position:left center}.hni-detail strong{display:block;font-size:15px;line-height:1.12}.hni-detail small{display:block;color:#777;font-size:10px;margin-top:4px}.hni-detail .detail-close{position:absolute;right:0;top:12px;width:28px;height:28px;border:1px solid #d8d8d5;border-radius:50%;background:#fff;color:#555;cursor:pointer;display:none}.hni-detail.has-selection .detail-close{display:grid;place-items:center}.hni-projects-label{display:none!important}
+.project-body{grid-template-columns:minmax(320px,40%) 1fr!important;gap:clamp(34px,4vw,64px)!important;padding-top:3vh!important}.project-copy{justify-content:flex-start!important;padding-top:3vh}.project-copy h2{font-size:clamp(38px,4.35vw,64px)!important;line-height:.9!important;letter-spacing:-.05em!important;margin-bottom:2.4vh!important;max-width:100%!important}.project-copy h2 strong{display:inline!important;margin-right:.12em}.project-fact{min-height:82px!important}.map-card{border-radius:24px!important}
+.report-panel[data-panel="previous"] .insight{padding:13px 14px 13px 49px!important}.report-panel[data-panel="previous"] .insight:before{left:14px!important;right:auto!important;top:14px!important;font-size:9px!important;line-height:1!important;color:var(--red)!important;font-weight:850!important;letter-spacing:.08em}.report-panel[data-panel="previous"] .insight h3{max-width:100%!important;margin-bottom:6px!important}
+.floor-slide{background:#fff!important}.floor-shell{padding:3.6vh 4vw 82px!important}.floor-layout{grid-template-columns:44% 1fr!important;gap:5vw!important}.floor-title{font-size:clamp(34px,4.2vw,58px)!important;margin-bottom:12px!important}.floor-window{border-top:0!important}.floor-window:after{background:linear-gradient(transparent,#fff)!important;height:22px!important}.floor-row{grid-template-columns:118px 1fr!important;height:52px!important}.floor-row .level{font-size:12px!important;color:#c2c2bf!important}.floor-row .use{font-size:11px!important}.floor-slide.upper .floor-track{transform:translateY(-312px)!important}.building-stage{background:transparent!important;box-shadow:none!important;border-radius:0!important;overflow:hidden!important}.building-stage:after{display:none!important}.building-stage img{left:10%!important;width:80%!important;bottom:-7%!important;filter:contrast(.9)!important;mix-blend-mode:multiply!important;transform:translateY(-14%)!important}.floor-slide.upper .building-stage img{transform:translateY(11%)!important}.floor-toggle{left:calc(44% - 62px)!important;top:auto!important;bottom:12px!important;transform:none!important;width:54px!important;height:54px!important;border:4px solid #fff!important;font-size:25px!important;box-shadow:0 10px 26px rgba(237,28,36,.28)!important}.floor-toggle:hover{transform:scale(1.06)!important}.floor-header .view-label{margin-right:92px!important}
+@media(max-width:900px){.screen>.about-nav{bottom:14px!important;padding:5px 7px!important;gap:3px!important}.screen>.about-nav button{padding:8px 11px!important;font-size:7px!important}.hgroup.hg-v4 .hg-legend{bottom:67px!important}.hni-detail{left:26px;right:22px;bottom:78px;min-height:86px;padding-top:11px}.hni-detail .detail-empty{font-size:8px}.hni-detail.has-selection .detail-selected{grid-template-columns:54px 1fr}.hni-detail img{width:54px;height:30px}.hni-detail strong{font-size:11px}.hni-detail small{font-size:7px}.project-copy{padding-top:12px}.project-copy h2{font-size:34px!important}.project-fact{min-height:66px!important}.floor-layout{grid-template-columns:44% 1fr!important;gap:22px!important}.floor-title{font-size:32px!important}.floor-row{height:45px!important;grid-template-columns:82px 1fr!important}.floor-row .level,.floor-row .use{font-size:8px!important}.floor-slide.upper .floor-track{transform:translateY(-270px)!important}.floor-toggle{left:calc(44% - 48px)!important;bottom:6px!important;width:44px!important;height:44px!important;font-size:20px!important}}
+
+
+/* standardized-interactions-v5b */
+.hni-head h2{font-size:clamp(42px,5vw,76px)!important}.hni-head h2 span{font-size:.72em!important;letter-spacing:-.055em!important}
+.floor-slide.upper .building-stage img{transform:translateY(46%)!important}
+@media(max-width:900px){.hni-head h2{font-size:42px!important}.hni-head h2 span{font-size:.7em!important}.floor-slide.upper .building-stage img{transform:translateY(44%)!important}}
+
+
+/* transparent-building-v6 */
+.building-stage img{mix-blend-mode:normal!important}
+
+</style>
+</head>
+<body>
+<main class="stage" aria-label="HTL Hinduja project proposal">
+  <section id="intro" class="screen intro active playing phase-idle" aria-label="Opening montage">
+    <div class="topline"></div><div id="logoField" class="logo-field"></div>
+    <div class="htl-reveal"><img src="/media/f17edf6820df728a.jpg" alt="HTL"><div class="htl-copy">PROJECT LOGISTICS · ENGINEERED WITH PRECISION</div><div class="htl-client">HINDUJA PROJECT PROPOSAL</div></div>
+    <div class="controls"><button class="ghost" id="skip">SKIP INTRO</button></div><div class="progress"></div>
+  </section>
+  <section id="agenda" class="screen agenda" aria-label="Agenda">
+    <aside class="rail"><span>AGENDA</span></aside><div class="agenda-main"><header class="agenda-head"><h1>AGENDA</h1><p>Select a section to navigate</p></header><nav class="agenda-list" aria-label="Proposal sections"></nav></div>
+    <div class="controls"><button class="ghost" id="replay">REPLAY OPENING</button><button class="ghost" id="fullscreen">FULLSCREEN</button></div>
+  </section>
+  <div id="sections"></div><div class="fade-cover" id="fade"></div>
+</main>
+<script>
+const logos=["/media/aa930eba0258fbb9.png","/media/771f248b8a8f7e66.png","/media/4762182295b190be.png","/media/4d428fa7feee5516.png","/media/8bedbd900502a3b4.png","/media/62b909b2d7662839.png","/media/749c44c5aa2f40de.png","/media/e8f31000730da571.png","/media/12a1d4d5685910fa.png","/media/49bc723c69a4549e.png","/media/5e02ad5843ebff2c.png","/media/507f561084328831.png","/media/a321d14c7074f595.png","/media/c276a1e3e36753ab.png","/media/70bcff2e093739cd.png","/media/ed937e7e990d82d5.png","/media/322366db0329db69.png","/media/40b597954b442137.png","/media/32485710f355b3e7.png","/media/6c16bfef95f66b94.png","/media/5b9f1042d919f334.png","/media/a42ca8ca370ba3fa.png","/media/c2bf8edbf8b5236f.png","/media/c2bae16cf41c23b9.png","/media/fb300e749132f388.png","/media/73632e796ac0609c.png"];const htlMark="/media/f17edf6820df728a.jpg";
+const items=[
+['01','About HTL','Who we are, and our standing with UHNI / HNI clientele','Capability built for high-stakes project logistics'],
+['02','About the Project','Project brief, scope and key execution context','One execution plan, aligned to Hinduja’s priorities'],
+['03','Key Challenges & HTL’s Execution Strategy','Location, logistics, site storage and Day 1 / Day 2 / Day 3 integration','Complexity controlled across every movement and milestone'],
+['04','Processes & Systems','QA/QC, ERP dashboards, monitoring and safety','Visibility, quality and safety designed into delivery'],
+['05','HTL Credentials','Accreditations, financials, testimonials and clientele','The experience and governance to deliver with confidence']];
+const field=document.querySelector('#logoField');
+const count=Math.min(logos.length,29);
+const logoEls=[];for(let i=0;i<count;i++){const j=Math.max(1,i),a=(Math.PI*2*(j-1)/(count-1))-Math.PI/2,ring=j%3,rx=[43,37,31][ring],ry=[38,31,24][ring];const img=document.createElement('img');img.className='client-logo'+(i===0?' hero-client':'');img.src=logos[i];img.alt=i===0?'Hinduja':'HNI client logo';img.style.setProperty('--x',i===0?'0vw':Math.cos(a)*rx+'vw');img.style.setProperty('--y',i===0?'0vh':Math.sin(a)*ry+'vh');img.style.setProperty('--x2',i===0?'0vw':Math.cos(a)*[31,27,23][ring]+'vw');img.style.setProperty('--y2',i===0?'0vh':Math.sin(a)*[27,22,18][ring]+'vh');img.style.transitionDelay=(i%7)*28+'ms';field.appendChild(img);logoEls.push(img)}
+async function setMergeTargets(){const im=new Image();im.src=htlMark;await im.decode();const c=document.createElement('canvas'),w=720,h=230;c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(im,0,0,w,h);const d=x.getImageData(0,0,w,h).data,candidates=[];for(let gy=0;gy<18;gy++)for(let gx=0;gx<54;gx++){const px=Math.floor((gx+.5)*w/54),py=Math.floor((gy+.5)*h/18),q=(py*w+px)*4;if(d[q+3]>45&&(d[q]<245||d[q+1]<245||d[q+2]<245))candidates.push([px,py])}for(let i=0;i<logoEls.length;i++){const p=candidates[Math.floor(i*candidates.length/logoEls.length)]||[w/2,h/2];logoEls[i].style.setProperty('--mx',((p[0]/w-.5)*52)+'vw');logoEls[i].style.setProperty('--my',((p[1]/h-.5)*25)+'vh')}}
+const nav=document.querySelector('.agenda-list'),sections=document.querySelector('#sections');
+items.forEach((it,i)=>{const b=document.createElement('button');b.className='agenda-item';b.innerHTML='<span class="num">'+it[0]+'</span><span><span class="item-title">'+it[1]+'</span><span class="item-desc">'+it[2]+'</span></span><span class="arrow">→</span>';b.onclick=()=>show(i===0?'about-who':'section-'+(i+1));nav.appendChild(b);if(i===0)return;const s=document.createElement('section');s.id='section-'+(i+1);s.className='screen section';s.innerHTML='<div class="bar"></div><div class="section-top"><span class="label">'+it[1].toUpperCase()+'</span><span class="meta">PROJECT PROPOSAL · HINDUJA</span></div><div class="section-body"><div class="section-num">'+it[0]+'</div><div class="section-copy"><h2>'+it[1]+'</h2><p>'+it[3]+'</p><div class="accent"></div><div class="placeholder">SECTION CONTENT TO FOLLOW</div></div></div><button class="back">← BACK TO AGENDA</button><div class="hint">ESC · BACK TO AGENDA &nbsp;&nbsp; ← → · NAVIGATE</div>';s.querySelector('.back').onclick=()=>show('agenda');sections.appendChild(s)});
+
+// project-section-v2
+const projectUnderstanding=document.querySelector('#section-2');
+projectUnderstanding.className='screen project-slide';
+projectUnderstanding.innerHTML='<div class="project-shell"><header class="project-header"><div class="section-kicker">02 · ABOUT THE PROJECT</div><div class="slide-name">PROJECT UNDERSTANDING</div></header><div class="project-body"><div class="project-copy"><div class="eyebrow">HINDUJA HOUSE</div><h2><strong>PROJECT</strong> UNDERSTANDING</h2><div class="project-facts"><div class="project-fact"><b>Project Name</b><span>Hinduja House</span></div><div class="project-fact"><b>Scope</b><span>MEP Basebuild</span></div><div class="project-fact wide"><b>Project brief</b><span>Mixed-use development comprising Hinduja office + family residence, 36 floors</span></div><div class="project-fact wide"><b>Floors</b><span>Mixed-use development comprising Hinduja office + family residence, 36 floors</span></div></div></div><figure class="map-card"><img src="/media/dbfe37417bf1fd74.jpg" alt="Map showing the Hinduja House project location"><figcaption class="map-label">HINDUJA HOUSE · WORLI</figcaption></figure></div></div><nav class="project-subnav"><button class="active" data-go="section-2">PROJECT UNDERSTANDING</button><button data-go="section-2-site-report">SITE REPORTS</button></nav>';
+const siteReport=document.createElement('section');siteReport.id='section-2-site-report';siteReport.className='screen report-slide';
+siteReport.innerHTML='<div class="report-shell"><header class="report-header"><div><div class="kicker">02 · ABOUT THE PROJECT</div><h2><strong>SITE</strong> <span>REPORT</span></h2></div><div class="report-date">REPORT 01 · AS ON 29 APRIL</div></header><div class="report-layout"><div class="report-visual"><figure class="site-photo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Hinduja House construction site"><figcaption class="photo-caption">RESTRICTED SITE FOOTPRINT</figcaption></figure><div class="report-tabs" role="tablist"><button class="active" data-report="previous"><b>SITE REPORT 01</b><span>29 April · Available</span></button><button data-report="latest"><b>SITE REPORT 02</b><span>Latest · Awaiting details</span></button></div></div><div class="report-content"><div class="report-panel active" data-panel="previous"><div class="insight-grid"><article class="insight" data-n="01"><h3>Restricted Site Footprint</h3><p>Limited working area due to ongoing basement construction and support systems. Constrained space for material storage, laydown areas, and temporary facilities.</p></article><article class="insight" data-n="02"><h3>Access & Logistics Constraints</h3><p>Site access limited to two road-facing boundaries. Vehicle movement, material deliveries, and manpower access require careful coordination to avoid congestion.</p></article><article class="insight" data-n="03"><h3>Material Handling Challenges</h3><p>Insufficient dedicated storage space necessitates phased procurement and just-in-time deliveries.</p></article><article class="insight" data-n="04"><h3>Temporary Infrastructure Limitations</h3><p>Deployment of site offices, utilities, and support infrastructure is restricted by available space. Mobilization must be phased based on site readiness.</p></article><article class="insight" data-n="05"><h3>Concurrent Construction Activities</h3><p>Increased risk of workflow clashes, congestion, and productivity impacts without effective coordination.</p></article><article class="insight" data-n="06"><h3>Project Coordination Requirements</h3><p>Continuous coordination among stakeholders is essential to manage access, logistics, work sequencing, and resource deployment effectively.</p></article></div></div><div class="report-panel" data-panel="latest"><div class="latest-empty"><div><div class="pending-mark">↗</div><h3>Latest site report</h3><p>This view is prepared for the current site assessment. Photographs, observations and the report date can be added as soon as the latest material is available.</p><span class="pending-pill">CONTENT AWAITED · NO DATA ASSUMED</span></div></div></div></div></div></div><nav class="project-subnav"><button data-go="section-2">PROJECT UNDERSTANDING</button><button class="active" data-go="section-2-site-report">SITE REPORTS</button></nav>';
+sections.appendChild(siteReport);
+
+// floor-and-report-v3
+projectUnderstanding.querySelector('.project-subnav').innerHTML='<button class="active" data-go="section-2">PROJECT UNDERSTANDING</button><button data-go="section-2-floor">FLOOR BIFURCATION</button><button data-go="section-2-site-report">SITE REPORTS</button>';
+siteReport.innerHTML="<div class=\"report-shell\"><header class=\"report-header\"><div><div class=\"kicker\">02 · ABOUT THE PROJECT</div><h2><strong>SITE</strong> <span>REPORT</span></h2></div><div class=\"report-date\">29 APRIL</div></header><div class=\"report-layout\"><div class=\"report-visual\"><div class=\"visual-stage\"><figure class=\"visual-panel single-photo active\" data-visual=\"previous\"><img src=\"/media/d04d14bef6f2433f.jpg\" alt=\"Hinduja House construction site on 29 April\"><figcaption class=\"photo-caption\">RESTRICTED SITE FOOTPRINT</figcaption></figure><div class=\"visual-panel latest-gallery\" data-visual=\"latest\"><figure><img src=\"/media/7a9188e3326ddf1c.jpg\" alt=\"Hinduja House site progress photograph 1\"></figure><figure><img src=\"/media/5a36e37d5fba6925.jpg\" alt=\"Hinduja House site progress photograph 2\"></figure><figure><img src=\"/media/cdfa2eadef4b1c13.jpg\" alt=\"Hinduja House site progress photograph 3\"></figure><figure><img src=\"/media/fd436df03227a5c0.jpg\" alt=\"Hinduja House site progress photograph 4\"></figure></div></div><div class=\"report-tabs\" role=\"tablist\"><button class=\"active\" data-report=\"previous\"><b>SITE REPORT 01</b><span class=\"tab-date\">29 April</span></button><button data-report=\"latest\"><b>SITE REPORT 02</b><span class=\"tab-date\">26 August 2026</span></button></div></div><div class=\"report-content\"><div class=\"report-panel active\" data-panel=\"previous\"><div class=\"insight-grid\"><article class=\"insight\" data-n=\"01\"><h3>Restricted Site Footprint</h3><p>Limited working area due to ongoing basement construction and support systems. Constrained space for material storage, laydown areas, and temporary facilities.</p></article><article class=\"insight\" data-n=\"02\"><h3>Access & Logistics Constraints</h3><p>Site access limited to two road-facing boundaries. Vehicle movement, material deliveries, and manpower access require careful coordination to avoid congestion.</p></article><article class=\"insight\" data-n=\"03\"><h3>Material Handling Challenges</h3><p>Insufficient dedicated storage space necessitates phased procurement and just-in-time deliveries.</p></article><article class=\"insight\" data-n=\"04\"><h3>Temporary Infrastructure Limitations</h3><p>Deployment of site offices, utilities, and support infrastructure is restricted by available space. Mobilization must be phased based on site readiness.</p></article><article class=\"insight\" data-n=\"05\"><h3>Concurrent Construction Activities</h3><p>Increased risk of workflow clashes, congestion, and productivity impacts without effective coordination.</p></article></div></div><div class=\"report-panel\" data-panel=\"latest\"><div class=\"latest-observations\"><article class=\"latest-observation\"><span class=\"obs-num\">01</span><h3>Basement Progress</h3><p>Basement civil works are approximately 60–70% complete, with ongoing structural activities.</p></article><article class=\"latest-observation\"><span class=\"obs-num\">02</span><h3>Ground Floor Progress</h3><p>Ground floor slab casting is expected to commence shortly, with civil works progressing floor-wise.</p></article><article class=\"latest-observation\"><span class=\"obs-num\">03</span><h3>Mivan Construction Methodology</h3><p>Project is adopting Mivan construction, with an estimated 10–12 day floor cycle.</p></article><article class=\"latest-observation\"><span class=\"obs-num\">04</span><h3>MEP Workfront & Access</h3><p>Existing scaffolding and slab support structures currently occupy key work areas and may limit access for MEP first-fix activities.</p></article><article class=\"latest-observation\"><span class=\"obs-num\">05</span><h3>MEP Coordination Consideration</h3><p>MEP execution can be sequenced with the civil casting cycle to optimise workfront availability and minimise interface issues.</p></article></div></div></div></div></div><nav class=\"project-subnav\"><button data-go=\"section-2\">PROJECT UNDERSTANDING</button><button data-go=\"section-2-floor\">FLOOR BIFURCATION</button><button class=\"active\" data-go=\"section-2-site-report\">SITE REPORTS</button></nav>";
+const floorSlide=document.createElement('section');floorSlide.id='section-2-floor';floorSlide.className='screen floor-slide';floorSlide.innerHTML="<div class=\"floor-shell\"><header class=\"floor-header\"><div class=\"kicker\">02 · ABOUT THE PROJECT</div><div class=\"view-label\">BASEMENT → TERRACE</div></header><div class=\"floor-layout\"><div class=\"floor-info\"><h2 class=\"floor-title\"><strong>FLOOR</strong> <span>BIFURCATION</span></h2><div class=\"floor-window\"><div class=\"floor-track\"><div class=\"floor-row\"><span class=\"level\">B1–3</span><span class=\"use\">BASEMENT LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">STILT</span><span class=\"use\">STILT LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 1–8</span><span class=\"use\">PODIUM LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 9</span><span class=\"use\">UPPER STILT LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 10</span><span class=\"use\">MEETING ROOM LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 11–18</span><span class=\"use\">OFFICE SPACE</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 19</span><span class=\"use\">AMENITY LEVEL 1 · POOL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 20</span><span class=\"use\">AMENITY LEVEL 2 · GYM</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 21</span><span class=\"use\">AMENITY LEVEL 3 · LIVING ROOM</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 22–28</span><span class=\"use\">RESIDENCE · BEDROOM LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 29</span><span class=\"use\">TERRACE LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 30</span><span class=\"use\">OHT LEVEL</span></div><div class=\"floor-row\"><span class=\"level\">LEVEL 31</span><span class=\"use\">OHT TOP LEVEL</span></div></div></div></div><figure class=\"building-stage\"><img src=\"/media/bea41e040e4a7cfc.jpg\" alt=\"Architectural sketch of Hinduja House\"></figure><button class=\"floor-toggle\" aria-label=\"Move from basement to terrace\">↑</button></div></div><nav class=\"project-subnav\"><button data-go=\"section-2\">PROJECT UNDERSTANDING</button><button class=\"active\" data-go=\"section-2-floor\">FLOOR BIFURCATION</button><button data-go=\"section-2-site-report\">SITE REPORTS</button></nav>";sections.appendChild(floorSlide);
+const floorToggle=floorSlide.querySelector('.floor-toggle');floorToggle.onclick=()=>{const upper=floorSlide.classList.toggle('upper');floorToggle.textContent=upper?'↓':'↑';floorToggle.setAttribute('aria-label',upper?'Return from terrace to basement':'Move from basement to terrace');floorSlide.querySelector('.view-label').textContent=upper?'TERRACE → BASEMENT':'BASEMENT → TERRACE'};
+
+document.querySelectorAll('.project-subnav button').forEach(b=>b.onclick=()=>show(b.dataset.go));
+siteReport.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>{siteReport.querySelectorAll('[data-report]').forEach(x=>x.classList.toggle('active',x===b));siteReport.querySelectorAll('[data-panel]').forEach(x=>x.classList.toggle('active',x.dataset.panel===b.dataset.report));siteReport.querySelectorAll('[data-visual]').forEach(x=>x.classList.toggle('active',x.dataset.visual===b.dataset.report));siteReport.querySelector('.report-date').textContent=b.dataset.report==='previous'?'29 APRIL':'26 AUGUST 2026';});
+
+const aboutNav='<nav class="about-nav"><button data-go="agenda">AGENDA</button><button data-go="about-who">WHO WE ARE</button><button data-go="about-hni">HNI EXPERIENCE</button><button data-go="hinduja-group">HINDUJA GROUP</button><button data-go="about-why">WHY HTL</button></nav>';
+const milestones=[['1996','YEAR OF<br>COMMENCEMENT'],['2010','PUNE<br>BRANCH'],['2014','DELHI<br>BRANCH'],['2018','EXPANSION<br>INTO MEP'],['2020','DATA<br>CENTRE'],['2024','HTL<br>BIOPHARMA']].map(m=>'<div class="milestone"><b>'+m[0]+'</b><span>'+m[1]+'</span></div>').join('');
+const who=document.createElement('section');who.id='about-who';who.className='screen who';who.innerHTML='<div class="who-grid"><div class="map-panel"><div class="globe"><div class="map-crop"><img src="/media/47cba417afed095c.jpg" alt="Dotted world map globe"></div></div></div><div class="who-copy"><div class="eyebrow">ABOUT HTL</div><h2><strong>WHO</strong> WE ARE</h2><p>Established in <span style="color:var(--red)">1996</span>, HTL is a leading turnkey MEP engineering company, providing integrated, future-ready solutions tailored for diverse industries.</p><p>Our strength lies in bridging Innovation, Engineering Expertise, and Process discipline—backed by decades of trust.</p></div><div class="timeline">'+milestones+'</div></div>'+aboutNav;sections.appendChild(who);
+const projects=[['Bajaj House','Worli'],['Solitaire - 1,2 & 3','Pune'],['Ahuja Towers','Worli'],['Indiabulls Blu','Mumbai'],['RARE Villa','Mumbai'],['Jalsa','Mumbai']];const correctCards=["<img src=\"/media/396b02fd7e76e175.png\" alt=\"Bajaj logo\">","<img src=\"/media/089995b82c5f4211.png\" alt=\"Solitaire logo\">","<img src=\"/media/69e4622cf0035388.png\" alt=\"Ahuja Towers logo\">","<img src=\"/media/79d0cc9607add1b8.png\" alt=\"Indiabulls logo\">","<img src=\"/media/1853e04bc0919392.png\" alt=\"RARE logo\">","<img src=\"/media/7fb337e4040c71d2.png\" alt=\"Jalsa logo\">"];const wall=projects.map((p,k)=>'<div class="hni-logo">'+correctCards[k]+'<strong>'+p[0]+'</strong><small>'+p[1]+'</small></div>').join('');
+const hni=document.createElement('section');hni.id='about-hni';hni.className='screen hni';hni.innerHTML='<div class="hni-head"><div class="eyebrow">PROJECTS</div><h2>UHNI<br><span>EXPERIENCE</span></h2></div><div class="hni-projects-label">PROJECTS</div><div class="hni-wall">'+wall+'</div>'+aboutNav;sections.appendChild(hni);
+
+const group=document.createElement('section');group.id='hinduja-group';group.className='screen hgroup';
+const img=(src,alt)=>'<img src="'+src+'" alt="'+alt+'">';
+const peer=(src,place,cls='')=>'<div class="project-card peer '+cls+'">'+img(src,'Project logo')+'<div class="place">'+place+'</div></div>';
+const entity=(src,place)=>'<div class="project-card entity-card"><div class="entity-tag">HINDUJA ENTITY</div>'+img(src,'Hinduja entity logo')+'<div class="place">'+place+'</div></div>';
+const sectorTop=(title,src,note='')=>'<div class="sector-title">'+title+'</div><div class="group-card">'+img(src,title+' logo')+'</div><div class="group-note">'+note+'</div><div class="branch"></div>';
+group.innerHTML='<header class="hg-head"><h2>HINDUJA GROUP</h2><p>A conglomerate spanning various sectors- This is where we’ve already delivered directly for the group companies and the equivalent sector expertise we bring to the rest.</p><div class="legend"><span><i class="green"></i>Delivered for a Hinduja Group company</span><span><i></i>Delivered for a peer company in the same sector</span></div></header><div class="hg-grid">'+
+'<article class="sector">'+sectorTop('HEALTHCARE','/media/c37fd364f1301a9a.png')+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+entity('/media/c37fd364f1301a9a.png','Mumbai')+'</div></article>'+
+'<article class="sector">'+sectorTop('AUTO / BATTERY','/media/89efe07e83bd6e30.png')+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards two auto-cards">'+peer('/media/80f0f0274399d221.png','Aurangabad')+peer('/media/9411bb6546bb121d.png','Hosur')+peer('/media/27d80c1432dd3c2b.png','Bangalore','wide')+'</div></article>'+
+'<article class="sector">'+sectorTop('RENEWABLES','/media/c61de36f6ffbed7a.png','Hinduja National Power Corporation<br>Limited (HNPCL)')+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards">'+peer('/media/4a6b8c169c31db70.png','Hosur')+peer('/media/f2a84389fbb3eccd.png','Jam Nagar')+'</div></article>'+
+'<article class="sector">'+sectorTop('IT','/media/dec1df181e437e0f.png','hinduja global solutions')+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards">'+peer('/media/b434c0f80fdb3fd5.png','Delhi')+peer('/media/6b8f150d6c58e6f6.png','Mumbai')+'</div></article>'+
+'<article class="sector">'+sectorTop('BFSI','/media/f92390e1e366bf3c.png')+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+entity('/media/f92390e1e366bf3c.png','Chennai')+'</div></article>'+
+'<article class="sector">'+sectorTop('REAL ESTATE DIVISION','/media/5518ec09e59e2aab.png')+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+entity('/media/5518ec09e59e2aab.png',"Hinduja’s Bunglow<br>Delhi")+'</div></article>'+
+'</div>'+aboutNav;sections.appendChild(group);
+const why=document.createElement('section');why.id='about-why';why.className='screen why';why.innerHTML='<div class="why-inner"><div class="why-title"><h2>WHY HTL</h2><p>Our unique combination of knowledge, experience & and tech, makes the organization more resilient, and in turn, inspires trust in the clients</p></div><div class="pillars"><article class="pillar"><div class="pn">01</div><h3>SUBJECT MATTER EXPERTISE</h3><p>Design to Commissioning handled by domain experts under one lead for complete technical ownership.</p></article><article class="pillar"><div class="pn">02</div><h3>MULTINATIONAL PRESENCE</h3><p>Strategic offices across India, the Middle East, and Africa for agile support and cross-functional project execution.</p></article><article class="pillar"><div class="pn">03</div><h3>INTEGRATION OF SERVICES</h3><p>Seamless coordination across HVAC, electrical, plumbing, & fire systems ensuring clash-free designs and unified execution.</p></article><article class="pillar"><div class="pn">04</div><h3>VALUE ENGINEERING & SUSTAINABILITY</h3><p>Energy-efficient, green building solutions designed for long-term performance and operational savings.</p></article></div></div>'+aboutNav;sections.appendChild(why);
+
+// global-slide-navigation-v2
+const slideOrder=['agenda','about-who','about-hni','hinduja-group','about-why','section-2','section-2-floor','section-2-site-report','section-3','section-4','section-5'];
+const slideMenuGroups=[['OVERVIEW',[['agenda','Agenda']]],['ABOUT HTL',[['about-who','Who We Are'],['about-hni','UHNI Experience'],['hinduja-group','Hinduja Group'],['about-why','Why HTL']]],['ABOUT THE PROJECT',[['section-2','Project Understanding'],['section-2-floor','Floor Bifurcation'],['section-2-site-report','Site Reports']]],['PROPOSAL',[['section-3','Key Challenges & Execution Strategy'],['section-4','Processes & Systems'],['section-5','HTL Credentials']]]];
+const menuToggle=document.createElement('button');menuToggle.id='deck-menu-toggle';menuToggle.className='deck-menu-toggle';menuToggle.textContent='MENU';menuToggle.setAttribute('aria-label','Open slide menu');document.body.appendChild(menuToggle);
+const menuLayer=document.createElement('div');menuLayer.id='deck-menu-layer';menuLayer.className='deck-menu-backdrop';menuLayer.innerHTML='<aside class="deck-menu" aria-label="Presentation menu"><div class="deck-menu-head"><strong>Presentation Menu</strong><button class="deck-menu-close" aria-label="Close menu">×</button></div>'+slideMenuGroups.map(g=>'<section class="menu-group"><div class="menu-group-title">'+g[0]+'</div>'+g[1].map((s,i)=>'<button class="menu-slide" data-go="'+s[0]+'"><span>'+String(i+1).padStart(2,'0')+'</span>'+s[1]+'</button>').join('')+'</section>').join('')+'</aside>';document.body.appendChild(menuLayer);
+const arrows=document.createElement('div');arrows.className='deck-arrows';arrows.innerHTML='<button data-dir="prev" aria-label="Previous slide">←</button><button data-dir="next" aria-label="Next slide">→</button>';document.body.appendChild(arrows);
+const closeDeckMenu=()=>menuLayer.classList.remove('open');menuToggle.onclick=()=>menuLayer.classList.add('open');menuLayer.onclick=e=>{if(e.target===menuLayer||e.target.closest('.deck-menu-close'))closeDeckMenu()};menuLayer.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{show(b.dataset.go);closeDeckMenu()});
+function updateDeckUI(id){document.body.classList.toggle('deck-ui-hidden',id==='intro');menuLayer.querySelectorAll('.menu-slide').forEach(b=>b.classList.toggle('active',b.dataset.go===id));const i=slideOrder.indexOf(id);arrows.querySelector('[data-dir="prev"]').disabled=i<=0;arrows.querySelector('[data-dir="next"]').disabled=i<0||i>=slideOrder.length-1;}
+function moveSlide(delta){const id=document.querySelector('.screen.active')?.id;const i=slideOrder.indexOf(id);if(i<0){show('agenda');return}const next=slideOrder[Math.max(0,Math.min(slideOrder.length-1,i+delta))];if(next&&next!==id)show(next)}
+arrows.querySelector('[data-dir="prev"]').onclick=()=>moveSlide(-1);arrows.querySelector('[data-dir="next"]').onclick=()=>moveSlide(1);
+
+
+// metrics-and-hinduja-group-v4
+const metricsV4=[['30','YEARS OF<br>BUSINESS'],['600+','TEAM<br>STRENGTH'],['2500+','CLIENTS<br>SERVED'],['30+','CITIES'],['12000+','HP ANNUALLY'],['20M+','SQ.FT FOOTPRINT'],['86%','REPEAT CLIENTS'],['9.2%','CSAT SCORE']];
+const metricsStripV4=who.querySelector('.timeline');metricsStripV4.className='timeline metrics-strip';metricsStripV4.innerHTML=metricsV4.map(m=>'<div class="metric"><strong>'+m[0]+'</strong><span>'+m[1]+'</span></div>').join('');
+group.classList.add('hg-v4');
+const hgImgV4=(src,alt)=>'<img src="'+src+'" alt="'+alt+'">';
+const hgPeerV4=(src,place,cls='')=>'<div class="project-card peer '+cls+'">'+hgImgV4(src,place+' logo')+'<div class="place">'+place+'</div></div>';
+const hgEntityV4=(src,place)=>'<div class="project-card entity-card"><div class="entity-tag">HINDUJA ENTITY</div>'+hgImgV4(src,'Hinduja entity logo')+'<div class="place">'+place+'</div></div>';
+const hgTopV4=(title,src,note='')=>'<div class="sector-title">'+title+'</div><div class="group-card">'+hgImgV4(src,title+' logo')+'</div><div class="group-note">'+note+'</div><div class="branch"></div>';
+group.innerHTML='<header class="hg-head"><div class="hg-title-wrap"><div class="hg-kicker">ABOUT HTL</div><h2><strong>HINDUJA</strong> GROUP</h2></div><p>A conglomerate spanning various sectors—this is where we’ve already delivered directly for the group companies and the equivalent sector expertise we bring to the rest.</p></header><div class="hg-grid">'+
+'<article class="sector">'+hgTopV4('HEALTHCARE',"/media/c37fd364f1301a9a.png")+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+hgEntityV4("/media/c37fd364f1301a9a.png",'Mumbai')+'</div></article>'+
+'<article class="sector">'+hgTopV4('AUTO / BATTERY',"/media/381e53c470159389.jpg")+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards two auto-cards">'+hgPeerV4("/media/9ffa72da6fbd4452.png",'Aurangabad')+hgPeerV4("/media/9411bb6546bb121d.png",'Hosur')+hgPeerV4("/media/49d066d0b71d21ad.jpg",'Bangalore','wide')+'</div></article>'+
+'<article class="sector">'+hgTopV4('RENEWABLES',"/media/762ac2c8653f472f.png",'Hinduja National Power Corporation<br>Limited (HNPCL)')+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards">'+hgPeerV4("/media/a42ca8ca370ba3fa.png",'Hosur')+hgPeerV4("/media/70bcff2e093739cd.png",'Jam Nagar')+'</div></article>'+
+'<article class="sector">'+hgTopV4('IT',"/media/dec1df181e437e0f.png",'Hinduja Global Solutions')+'<div class="subhead">SECTOR EXPERTISE</div><div class="cards">'+hgPeerV4("/media/b434c0f80fdb3fd5.png",'Delhi')+hgPeerV4("/media/6b8f150d6c58e6f6.png",'Mumbai')+'</div></article>'+
+'<article class="sector">'+hgTopV4('BFSI',"/media/3bfd4df1aff6dda9.jpg")+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+hgEntityV4("/media/3bfd4df1aff6dda9.jpg",'Chennai')+'</div><div class="also">ALSO · SECTOR EXPERTISE</div><div class="cards bfi-peers">'+hgPeerV4("/media/ab12b78514acd7a6.png",'')+hgPeerV4("/media/c05274c1220ba5d5.jpg",'')+'</div></article>'+
+'<article class="sector">'+hgTopV4('REAL ESTATE DIVISION',"/media/aa930eba0258fbb9.png")+'<div class="subhead">OUR ENGAGEMENT</div><div class="cards">'+hgEntityV4("/media/aa930eba0258fbb9.png","Hinduja’s Bunglow<br>Delhi")+'</div></article>'+
+'</div><div class="hg-legend"><span><i class="green"></i>Delivered for a Hinduja Group company</span><span><i></i>Delivered for a peer company in the same sector</span></div>'+aboutNav;
+
+
+// standardized-interactions-v5
+const agendaTargetsV5=['about-who','section-2','section-3','section-4','section-5'];
+nav.querySelectorAll('.agenda-item').forEach((button,index)=>{button.type='button';button.setAttribute('aria-label','Open '+button.querySelector('.item-title').textContent);button.onclick=()=>show(agendaTargetsV5[index]);});
+const hniProjectsV5=[['Bajaj House','Worli'],['Solitaire - 1,2 & 3','Pune'],['Ahuja Towers','Worli'],['Indiabulls Blu','Mumbai'],['RARE Villa','Mumbai'],['Jalsa','Mumbai']];
+const hniDetailV5=document.createElement('div');hniDetailV5.className='hni-detail';hniDetailV5.innerHTML='<div class="detail-label">INTERACTIVE PROJECT INDEX</div><div class="detail-empty">Select any client logo to focus on the project.</div><div class="detail-selected"><div class="detail-art"></div><div><strong></strong><small></small></div></div><button class="detail-close" aria-label="Clear selected project">×</button>';hni.querySelector('.hni-head').appendChild(hniDetailV5);
+const clearHniV5=()=>{hniDetailV5.classList.remove('has-selection');hni.querySelectorAll('.hni-logo').forEach(card=>{card.classList.remove('selected');card.setAttribute('aria-pressed','false')})};
+hniDetailV5.querySelector('.detail-close').onclick=clearHniV5;
+hni.querySelectorAll('.hni-logo').forEach((card,index)=>{card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-pressed','false');card.setAttribute('aria-label','View '+hniProjectsV5[index][0]+' project');const select=()=>{clearHniV5();card.classList.add('selected');card.setAttribute('aria-pressed','true');const art=card.querySelector('img,.wordmark');hniDetailV5.querySelector('.detail-art').innerHTML=art?art.outerHTML:'';hniDetailV5.querySelector('strong').textContent=hniProjectsV5[index][0];hniDetailV5.querySelector('small').textContent=hniProjectsV5[index][1];hniDetailV5.classList.add('has-selection')};card.onclick=select;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}}});
+floorSlide.classList.remove('upper');floorToggle.textContent='↑';floorSlide.querySelector('.view-label').textContent='BASEMENT → TERRACE';
+
+
+// transparent-building-v6
+floorSlide.querySelector('.building-stage img').src="/media/a4e34581c4e24733.jpg";
+
+document.querySelectorAll('.about-nav button').forEach(b=>{b.onclick=()=>show(b.dataset.go);if(b.dataset.go===b.closest('.screen').id)b.classList.add('active')});
+let timers=[];function clearTimers(){timers.forEach(clearTimeout);timers=[]}
+function show(id){const target=document.querySelector('#'+id);if(!target)return;closeDeckMenu?.();const cover=document.querySelector('#fade');cover.classList.add('on');setTimeout(()=>{document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));target.classList.add('active');updateDeckUI?.(id);setTimeout(()=>cover.classList.remove('on'),40)},430)}
+function play(){clearTimers();const intro=document.querySelector('#intro');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));intro.className='screen intro active playing phase-idle';void intro.offsetWidth;timers.push(setTimeout(()=>intro.className='screen intro active playing phase-field',350));timers.push(setTimeout(()=>intro.className='screen intro active playing phase-focus',2850));timers.push(setTimeout(()=>intro.className='screen intro active playing phase-merge',5050));timers.push(setTimeout(()=>intro.className='screen intro active playing phase-htl',6650));timers.push(setTimeout(()=>show('agenda'),8700))}
+document.querySelector('#skip').onclick=()=>{clearTimers();show('agenda')};document.querySelector('#replay').onclick=play;document.querySelector('#fullscreen').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+document.addEventListener('keydown',e=>{const active=document.querySelector('.screen.active');if(e.key==='Escape'){if(menuLayer.classList.contains('open'))closeDeckMenu();else if(active.id!=='intro')show('agenda');return}if(active.id==='agenda'&&['1','2','3','4','5'].includes(e.key)){show(e.key==='1'?'about-who':'section-'+e.key);return}if(e.key==='ArrowRight')moveSlide(1);if(e.key==='ArrowLeft')moveSlide(-1)});
+updateDeckUI('intro');
+setMergeTargets();
+</script>
+
+
+
+<!-- V7_REFINEMENTS_START -->
+<style>
+/* v7: exact map, UHNI grid, floor markings, organization chart */
+.map-panel{background:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:6vh 4vw!important}
+.map-panel .globe{display:none!important}
+.who-map-v7{display:block;width:92%;height:78%;object-fit:contain;object-position:center;filter:none;opacity:1}
+
+.hni-v7 .hni-head{left:0!important;right:0!important;top:0!important;bottom:auto!important;width:100%!important;height:34%!important;padding:5.5vh 3.6vw!important;border-right:0!important;border-bottom:1px solid #e4e4e2!important;background:#f5f5f3!important}
+.hni-v7 .hni-head h2{font-size:clamp(44px,5vw,74px)!important;margin-top:12px!important;line-height:.84!important}
+.hni-v7 .hni-head h2 span{font-size:.68em!important}
+.hni-v7 .hni-wall{left:0!important;right:0!important;top:34%!important;bottom:70px!important;padding:0 3.2vw!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;column-gap:0!important;row-gap:0!important;background:#fff!important}
+.hni-v7 .hni-logo{cursor:default!important;display:grid!important;grid-template-rows:78px auto auto!important;align-content:center!important;align-items:center!important;justify-items:start!important;padding:2.2vh 2.1vw!important;border-bottom:1px solid #e4e4e2!important;border-right:1px solid #d8d8d5!important;background:#fff!important;transform:none!important;overflow:hidden!important}
+.hni-v7 .hni-logo:nth-child(5n){border-right:0!important}
+.hni-v7 .hni-logo:nth-child(n+6){border-bottom:0!important}
+.hni-v7 .hni-logo:before{display:none!important}
+.hni-v7 .hni-logo:hover,.hni-v7 .hni-logo:focus-visible{transform:none!important;background:#fff!important}
+.hni-v7 .hni-logo img{display:block!important;width:100%!important;height:68px!important;max-width:160px!important;object-fit:contain!important;object-position:left center!important;transform:none!important;margin:0!important}
+.hni-v7 .hni-logo strong{font-size:clamp(11px,1vw,15px)!important;margin:12px 0 0!important;line-height:1.15!important;align-self:end!important}
+.hni-v7 .hni-logo small{font-size:9px!important;margin-top:5px!important;color:#777!important;line-height:1.2!important}
+.hni-v7 .future-client{background:#fafaf9!important;border-style:solid!important;color:#b2b2af!important}
+.hni-v7 .future-mark{width:48px;height:48px;border:1px dashed #cfcfcb;border-radius:50%;display:grid;place-items:center;color:#bbb;font-size:24px;font-weight:300}
+.hni-v7 .future-client strong{color:#9b9b98!important;font-size:10px!important;letter-spacing:.12em!important}
+.hni-v7 .future-client small{letter-spacing:.09em!important;color:#bbb!important}
+.hni-v7 .hni-detail,.hni-v7 .hni-projects-label{display:none!important}
+
+.floor-mark-panel{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-evenly;opacity:0;transform:translateY(24px);pointer-events:none;transition:opacity .55s var(--ease),transform .8s var(--ease);padding:2px 0 8px}
+.floor-mark-panel.lower{opacity:1;transform:none}
+.floor-slide.upper .floor-mark-panel.lower{opacity:0;transform:translateY(-24px)}
+.floor-slide.upper .floor-mark-panel.upper{opacity:1;transform:none}
+.floor-mark{width:80%;min-height:43px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.floor-mark .level{font-size:clamp(11px,1.05vw,15px);font-weight:760;color:#c5c5c2;letter-spacing:.02em;line-height:1.1}
+.floor-mark .rule{display:block;width:100%;height:1px;flex:0 0 1px;background:#767676;margin:5px 0}
+.floor-mark .use{font-size:clamp(9px,.86vw,12px);font-weight:500;color:#202020;letter-spacing:.01em;line-height:1.15}
+.floor-mark.stilt{display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto;align-items:center;gap:12px;min-height:28px}
+.floor-mark.stilt .rule{margin:0}.floor-mark.stilt .level{font-size:13px;text-align:center;color:#c5c5c2}.floor-mark.stilt .use{display:none}
+.floor-window{overflow:hidden!important}
+.floor-toggle{left:calc(44% - 54px)!important;bottom:10px!important}
+
+.org-slide{background:#fff;color:#151617;overflow:hidden}
+.org-shell{height:100%;padding:3.6vh 3.4vw 78px;display:flex;flex-direction:column}
+.org-header{height:64px;border-bottom:1px solid #d9d9d6;display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:14px}
+.org-header .kicker{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.18em}
+.org-header .slide-name{margin-right:92px;color:#777;font-size:9px;letter-spacing:.12em}
+.org-title-row{height:78px;display:flex;align-items:flex-end;justify-content:space-between;padding:12px 0 10px}
+.org-title-row h2{margin:0;font-size:clamp(35px,4.1vw,58px);line-height:.9;letter-spacing:-.05em;font-weight:300}.org-title-row h2 strong{font-weight:850}
+.org-title-row p{max-width:410px;margin:0 92px 3px 0;font-size:10px;line-height:1.4;color:#666}
+.org-chart{flex:1;min-height:0;background:#222;border-radius:22px;padding:14px 18px 15px;color:#fff;display:grid;grid-template-rows:66px 64px 58px 1fr;gap:9px;box-shadow:0 18px 50px rgba(0,0,0,.12);overflow:hidden}
+.org-card{background:#fff;color:#171717;border:1px solid #8bc66a;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(8px,.72vw,10.5px);line-height:1.18;font-weight:650;padding:7px 10px;position:relative;min-width:0}
+.org-card:after{content:'';position:absolute;left:50%;bottom:-10px;width:1px;height:9px;background:#4e7fd2}
+.org-card.no-drop:after{display:none}
+.org-lead{width:238px;margin:auto;background:var(--red);border-color:var(--red);color:#fff;justify-content:flex-start;text-align:left;padding:5px 12px 5px 6px;box-shadow:0 8px 22px rgba(237,28,36,.25)}
+.org-lead img{width:46px;height:54px;object-fit:cover;object-position:top center;border-radius:7px;margin-right:10px;background:#fff}
+.org-lead span{font-size:11px;line-height:1.2}.org-lead b{display:block;font-size:12px;margin-bottom:2px}
+.org-tier{display:grid;gap:26px;align-items:stretch}.org-tier.leads{grid-template-columns:1fr 1.2fr 1fr}.org-tier.support{grid-template-columns:1fr 1.2fr 1fr}
+.org-tier .cluster{display:grid;gap:9px;min-width:0}.org-tier.support .cluster.design{grid-template-columns:repeat(3,1fr)}
+.org-delivery{border-top:1px solid rgba(255,255,255,.17);padding-top:10px;display:grid;grid-template-columns:1.25fr .75fr .72fr 1.45fr;gap:11px;min-height:0}
+.org-lane{min-width:0;display:flex;flex-direction:column;gap:7px;position:relative}
+.org-lane-title{color:#9db9ea;font-size:8px;font-weight:850;letter-spacing:.12em;text-align:center;height:18px}
+.org-lane>.org-card{min-height:42px;flex:0 0 auto}
+.org-children{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-height:0;flex:1}.org-children.two{grid-template-columns:repeat(2,minmax(0,1fr))}.org-children.one{grid-template-columns:1fr}
+.org-child{background:#303030;border:1px solid #4d4d4d;border-radius:8px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:clamp(8px,.7vw,10px);line-height:1.16;padding:7px 5px;min-width:0;position:relative}
+.org-child.emphasis{border-color:#4e7fd2}.org-child small{display:block;color:#9db9ea;margin-top:4px;font-size:.86em}
+.project-subnav.org-nav-v7{max-width:720px!important}
+
+@media(max-width:900px){
+ .map-panel{padding:34px 24px!important}.who-map-v7{width:94%;height:72%}
+ .hni-v7 .hni-head{height:31%!important;padding:34px 25px!important}.hni-v7 .hni-wall{top:31%!important;padding:0 20px!important}.hni-v7 .hni-logo{grid-template-rows:48px auto auto!important;padding:12px 11px!important}.hni-v7 .hni-logo img{height:42px!important}.hni-v7 .hni-logo strong{font-size:8px!important;margin-top:7px!important}.hni-v7 .hni-logo small{font-size:6.5px!important}.hni-v7 .future-mark{width:34px;height:34px}
+ .floor-mark{width:84%;min-height:36px}.floor-mark .level{font-size:9px}.floor-mark .use{font-size:7px}.floor-mark.stilt .level{font-size:9px}.floor-toggle{left:calc(44% - 42px)!important}
+ .org-shell{padding:24px 25px 72px}.org-title-row{height:64px}.org-title-row h2{font-size:34px}.org-title-row p{font-size:7px;margin-right:80px;max-width:300px}.org-chart{padding:10px 12px;border-radius:17px;grid-template-rows:54px 52px 48px 1fr;gap:7px}.org-card{font-size:7px;padding:5px}.org-lead{width:195px}.org-lead img{width:38px;height:43px}.org-lead b{font-size:9px}.org-lead span{font-size:8px}.org-tier{gap:14px}.org-delivery{gap:7px;padding-top:7px}.org-lane-title{font-size:6px;height:14px}.org-lane>.org-card{min-height:33px}.org-child{font-size:6.6px;padding:4px 3px}
+}
+</style>
+<script>
+// v7 runtime refinements
+const mapPanelV7=document.querySelector('#about-who .map-panel');
+if(mapPanelV7) mapPanelV7.innerHTML='<img class="who-map-v7" src="/media/8dbc66e55dad70d9.png" alt="HTL global presence map highlighting India, Dubai and Lagos">';
+
+const hniV7=document.querySelector('#about-hni');
+if(hniV7){
+  const existing=[...hniV7.querySelectorAll('.hni-logo')];
+  const art=(i)=>existing[i]?.querySelector('img,.wordmark')?.outerHTML||'<span class="future-mark">+</span>';
+  const card=(artwork,name,place,extra='')=>'<article class="hni-logo '+extra+'">'+artwork+'<strong>'+name+'</strong><small>'+place+'</small></article>';
+  const future=()=>card('<span class="future-mark">+</span>','FUTURE CLIENT','LOGO PLACEHOLDER','future-client');
+  const cards=[
+    card('<img src="/media/aa930eba0258fbb9.png" alt="Hinduja">','Hinduja’s Bunglow','Lyutens–Delhi'),
+    card(art(1),'Solitaire - 1,2 & 3','Pune'),
+    card(art(2),'Ahuja Towers','Worli'),
+    card(art(3),'Indiabulls Blu','Mumbai'),
+    future(),
+    card(art(4),'RARE Villa','Mumbai'),
+    card(art(5),'Jalsa','Mumbai'),
+    card(art(0),'Bajaj House','Worli'),
+    future(),
+    future()
+  ].join('');
+  const nav=hniV7.querySelector('.about-nav')?.outerHTML||'';
+  hniV7.classList.add('hni-v7');
+  hniV7.innerHTML='<div class="hni-head"><div class="eyebrow">PROJECTS</div><h2>UHNI<br><span>EXPERIENCE</span></h2></div><div class="hni-wall">'+cards+'</div>'+nav;
+  hniV7.querySelectorAll('.about-nav button').forEach(b=>b.onclick=()=>show(b.dataset.go));
+}
+
+const floorV7=document.querySelector('#section-2-floor');
+if(floorV7){
+ const mark=(level,use,extra='')=>'<div class="floor-mark '+extra+'"><span class="level">'+level+'</span><i class="rule"></i><span class="use">'+use+'</span></div>';
+ const lower=[
+   mark('LEVEL 19','AMENITY LEVEL 1 - POOL'),mark('LEVEL 11-18','OFFICE SPACE'),mark('LEVEL 10','MEETING ROOM LEVEL'),mark('LEVEL 9','UPPER STILT LEVEL'),mark('LEVEL 1-8','PODIUM LEVEL'),mark('STILT','','stilt'),mark('B1-3','BASEMENT LEVEL')
+ ].join('');
+ const upper=[
+   mark('LEVEL 31','OHT TOP LEVEL'),mark('LEVEL 30','OHT LEVEL'),mark('LEVEL 29th','TERRACE LEVEL'),mark('LEVEL 22-28','RESIDENCE - BEDROOM LEVEL'),mark('LEVEL 21','AMENITY LEVEL 3 - LIVING ROOM'),mark('LEVEL 20','AMENITY LEVEL 2 - GYM')
+ ].join('');
+ floorV7.querySelector('.floor-window').innerHTML='<div class="floor-mark-panel lower">'+lower+'</div><div class="floor-mark-panel upper">'+upper+'</div>';
+ floorV7.classList.remove('upper');
+ const toggle=floorV7.querySelector('.floor-toggle');if(toggle){toggle.textContent='↑';toggle.setAttribute('aria-label','View upper floors')}
+}
+
+const projectNavV7='<nav class="project-subnav org-nav-v7"><button data-go="section-2">PROJECT UNDERSTANDING</button><button data-go="section-2-floor">FLOOR BIFURCATION</button><button data-go="section-2-site-report">SITE REPORTS</button><button data-go="section-2-org-chart">PROJECT ORGANIZATION</button></nav>';
+document.querySelectorAll('#section-2 .project-subnav,#section-2-floor .project-subnav,#section-2-site-report .project-subnav').forEach(n=>n.outerHTML=projectNavV7);
+
+const orgV7=document.createElement('section');
+orgV7.id='section-2-org-chart';orgV7.className='screen org-slide';
+orgV7.innerHTML='<div class="org-shell"><header class="org-header"><div class="kicker">02 · ABOUT THE PROJECT</div><div class="slide-name">PROJECT ORGANIZATION</div></header><div class="org-title-row"><h2><strong>PROJECT</strong> ORGANIZATION</h2><p>Integrated project leadership, design coordination and site delivery structure for Hinduja House.</p></div><div class="org-chart"><div class="org-card org-lead"><img src="/media/22510ce3ff29506d.png" alt="Mr. Sachin Baraskar"><span><b>Mr. Sachin Baraskar</b>MEP Head</span></div><div class="org-tier leads"><div class="org-card">Mr. Sachin<br>Planning &amp; Billing Manager</div><div class="org-card">Mr. Balaji<br>Operation Head MEP</div><div class="org-card">Supriya Salve<br>MEP Design Manager</div></div><div class="org-tier support"><div class="org-card no-drop">Mr. Suman Pahari<br>Assistant Engineer</div><div class="org-card">Mr. Chandan Kumar<br>Project Head</div><div class="cluster design"><div class="org-card no-drop">Design Engineer<br>Mechanical</div><div class="org-card no-drop">Design Engineer<br>Electrical</div><div class="org-card no-drop">BIM Modeler MEP</div></div></div><div class="org-delivery"><div class="org-lane"><div class="org-lane-title">ELECTRICAL DELIVERY</div><div class="org-card no-drop">Mr. Rupesh Malekar<br>Electrical PM</div><div class="org-children"><div class="org-child emphasis">Sr. Project Engineer<br>Electrical<small>Supervisors</small></div><div class="org-child">Testing &amp; Commissioning<br>Engineer</div><div class="org-child">Quality Engineer<br>Electrical</div></div></div><div class="org-lane"><div class="org-lane-title">STORES</div><div class="org-card no-drop">Mr. Tejas<br>Store Manager</div><div class="org-children one"><div class="org-child">Store Keeper</div></div></div><div class="org-lane"><div class="org-lane-title">SAFETY</div><div class="org-card no-drop">Md Riyazuddin<br>Safety Manager</div><div class="org-children one"><div class="org-child">Safety Officer’s</div></div></div><div class="org-lane"><div class="org-lane-title">MECHANICAL DELIVERY</div><div class="org-card no-drop">Mr. Lathesh<br>Mechanical PM</div><div class="org-children"><div class="org-child emphasis">Sr. Project Engineer<br>HVAC<small>Supervisors</small></div><div class="org-child emphasis">Project Engineer<br>PHE &amp; FF<small>Supervisors</small></div><div class="org-child">Quality Engineer<br>Mechanical</div></div></div></div></div></div>'+projectNavV7;
+document.querySelector('#sections').appendChild(orgV7);
+
+document.querySelectorAll('#section-2 .project-subnav,#section-2-floor .project-subnav,#section-2-site-report .project-subnav,#section-2-org-chart .project-subnav').forEach(nav=>nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('active',b.dataset.go===nav.closest('.screen').id);b.onclick=()=>show(b.dataset.go)}));
+
+if(!slideOrder.includes('section-2-org-chart')) slideOrder.splice(slideOrder.indexOf('section-3'),0,'section-2-org-chart');
+const projectMenuV7=[...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='ABOUT THE PROJECT');
+if(projectMenuV7&&!projectMenuV7.querySelector('[data-go="section-2-org-chart"]')){
+ const b=document.createElement('button');b.className='menu-slide';b.dataset.go='section-2-org-chart';b.innerHTML='<span>04</span>Project Organization';b.onclick=()=>show('section-2-org-chart');projectMenuV7.appendChild(b);
+}
+updateDeckUI(document.querySelector('.screen.active')?.id||'intro');
+</script>
+<!-- V7_REFINEMENTS_END -->
+
+
+<!-- V8_STRATEGY_ORG_START -->
+<style>
+/* v8: light organization chart with explicit reporting connectors */
+.org-chart{background:#f0f0ee!important;color:#171717!important;border:1px solid #dededb!important;box-shadow:0 18px 48px rgba(0,0,0,.08)!important;position:relative!important}
+.org-chart .org-card{border-color:#c9c9c5!important;background:#fff!important;box-shadow:0 3px 10px rgba(0,0,0,.035);z-index:3}
+.org-chart .org-lead{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;box-shadow:0 8px 22px rgba(237,28,36,.2)!important}
+.org-chart .org-tier,.org-chart .org-delivery,.org-chart .org-lane,.org-chart .org-lane-title{position:relative;z-index:2}
+.org-chart .org-delivery{border-top:1px solid #d3d3d0!important}
+.org-chart .org-lane-title{color:#777!important}
+.org-chart .org-child{background:#fafaf9!important;color:#171717!important;border-color:#d0d0cc!important;box-shadow:0 3px 10px rgba(0,0,0,.025);z-index:3}
+.org-chart .org-child.emphasis{border-color:#bcbcb8!important}
+.org-chart .org-child small{color:var(--red)!important;font-weight:750}
+.org-chart .org-card:after{display:none!important}
+.org-chart .org-lane>.org-card.no-drop:after{display:block!important;content:'';position:absolute;left:50%;bottom:-10px;width:1.5px;height:9px;background:var(--red)}
+.org-chart .org-lane>.org-card.no-drop:before{content:'';position:absolute;left:calc(50% - 3px);bottom:-10px;width:6px;height:6px;border-right:1.5px solid var(--red);border-bottom:1.5px solid var(--red);transform:rotate(45deg);z-index:4}
+.org-connectors-v8{position:absolute;inset:0;z-index:1;pointer-events:none}
+.org-connectors-v8 i{position:absolute;display:block;background:#9b9b98}
+.org-connectors-v8 .main{background:var(--red)}
+.org-connectors-v8 .v{width:1.5px}
+.org-connectors-v8 .h{height:1.5px}
+.org-connectors-v8 .down:after{content:'';position:absolute;left:-2.5px;bottom:0;width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);color:inherit}
+.org-connectors-v8 .left:after{content:'';position:absolute;left:0;top:-2.5px;width:5px;height:5px;border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);color:inherit}
+.org-connectors-v8 .right:after{content:'';position:absolute;right:0;top:-2.5px;width:5px;height:5px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg);color:inherit}
+.org-connectors-v8 .red{color:var(--red)}.org-connectors-v8 .grey{color:#9b9b98}
+.org-connectors-v8 .lead-balaji{left:50%;top:16.2%;height:2.8%}
+.org-connectors-v8 .balaji-left{left:31.7%;top:25.3%;width:3.3%}
+.org-connectors-v8 .balaji-right{left:65%;top:25.3%;width:3.3%}
+.org-connectors-v8 .plan-down{left:16.65%;top:32.1%;height:2.4%}
+.org-connectors-v8 .balaji-down{left:50%;top:32.1%;height:2.4%}
+.org-connectors-v8 .design-stem{left:83.35%;top:32.1%;height:1.65%}
+.org-connectors-v8 .design-bus{left:72%;top:33.7%;width:22.5%}
+.org-connectors-v8 .design-d1{left:72%;top:33.7%;height:1%}.org-connectors-v8 .design-d2{left:83.35%;top:33.7%;height:1%}.org-connectors-v8 .design-d3{left:94.5%;top:33.7%;height:1%}
+.org-connectors-v8 .project-stem{left:50%;top:46%;height:1.8%}
+.org-connectors-v8 .delivery-bus{left:15.5%;top:47.7%;width:69%}
+.org-connectors-v8 .lane-d1{left:15.5%;top:47.7%;height:8.3%}.org-connectors-v8 .lane-d2{left:43%;top:47.7%;height:8.3%}.org-connectors-v8 .lane-d3{left:61%;top:47.7%;height:8.3%}.org-connectors-v8 .lane-d4{left:84.5%;top:47.7%;height:8.3%}
+
+/* v8: embedded interactive strategy tools */
+.strategy-tool{background:#f5f5f3;color:#151617;overflow:hidden}
+.strategy-tool-shell{height:100%;padding:3.2vh 2.2vw 72px;display:flex;flex-direction:column;gap:10px}
+.strategy-tool-header{height:50px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #d9d9d6;padding-bottom:10px;flex:0 0 auto}
+.strategy-tool-header .kicker{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.18em}
+.strategy-tool-header h2{margin:0 90px 0 0;font-size:clamp(22px,2.4vw,34px);line-height:1;letter-spacing:-.035em}.strategy-tool-header h2 span{font-weight:300}
+.strategy-frame{flex:1;min-height:0;width:100%;border:1px solid #d8d8d5;border-radius:18px;background:#fff;box-shadow:0 16px 38px rgba(0,0,0,.08);overflow:hidden}
+.strategy-frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+.strategy-subnav{position:absolute;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;border:1px solid #dededb;border-radius:999px;background:rgba(255,255,255,.96);padding:5px 7px;box-shadow:0 10px 28px rgba(0,0,0,.08)}
+.strategy-subnav button{border:0;border-radius:999px;background:transparent;color:#777;padding:10px 18px;font-size:8px;font-weight:850;letter-spacing:.045em;white-space:nowrap;cursor:pointer}.strategy-subnav button.active{background:var(--red);color:#fff}.strategy-subnav button:hover:not(.active){background:#f2f2f0;color:#222}
+#section-3 .back,#section-3 .hint{display:none!important}
+
+@media(max-width:900px){
+ .strategy-tool-shell{padding:22px 22px 68px}.strategy-tool-header{height:43px}.strategy-tool-header .kicker{font-size:7px}.strategy-tool-header h2{font-size:22px;margin-right:76px}.strategy-frame{border-radius:13px}.strategy-subnav{bottom:14px}.strategy-subnav button{font-size:6.5px;padding:8px 11px}
+}
+</style>
+<script>
+const orgChartV8=document.querySelector('#section-2-org-chart .org-chart');
+if(orgChartV8&&!orgChartV8.querySelector('.org-connectors-v8')){
+ orgChartV8.insertAdjacentHTML('afterbegin','<div class="org-connectors-v8" aria-hidden="true"><i class="v main red down lead-balaji"></i><i class="h main red left balaji-left"></i><i class="h main red right balaji-right"></i><i class="v grey down plan-down"></i><i class="v main red down balaji-down"></i><i class="v grey design-stem"></i><i class="h grey design-bus"></i><i class="v grey down design-d1"></i><i class="v grey down design-d2"></i><i class="v grey down design-d3"></i><i class="v main red project-stem"></i><i class="h main red delivery-bus"></i><i class="v main red down lane-d1"></i><i class="v main red down lane-d2"></i><i class="v main red down lane-d3"></i><i class="v main red down lane-d4"></i></div>');
+}
+
+const strategyNavV8='<nav class="strategy-subnav"><button data-go="section-3">EXECUTION STRATEGY</button><button data-go="section-3-schedule">HOUSE PLANNING SCHEDULE</button><button data-go="section-3-procurement">PROCUREMENT TRACKER</button></nav>';
+const strategySectionV8=document.querySelector('#section-3');
+if(strategySectionV8&&!strategySectionV8.querySelector('.strategy-subnav')) strategySectionV8.insertAdjacentHTML('beforeend',strategyNavV8);
+
+const makeStrategyToolV8=(id,title,src)=>{
+ const s=document.createElement('section');s.id=id;s.className='screen strategy-tool';
+ s.innerHTML='<div class="strategy-tool-shell"><header class="strategy-tool-header"><div class="kicker">03 · KEY CHALLENGES &amp; HTL’S EXECUTION STRATEGY</div><h2><strong>'+title.split(' ')[0]+'</strong> <span>'+title.split(' ').slice(1).join(' ')+'</span></h2></header><div class="strategy-frame"><iframe src="'+src+'" title="'+title+'" loading="eager"></iframe></div></div>'+strategyNavV8;
+ document.querySelector('#sections').appendChild(s);return s;
+};
+const scheduleV8=document.querySelector('#section-3-schedule')||makeStrategyToolV8('section-3-schedule','HOUSE PLANNING SCHEDULE','interactive/hinduja_dashboard.html');
+const procurementV8=document.querySelector('#section-3-procurement')||makeStrategyToolV8('section-3-procurement','PROCUREMENT TRACKER','interactive/hinduja_procurement.html');
+document.querySelectorAll('#section-3 .strategy-subnav,#section-3-schedule .strategy-subnav,#section-3-procurement .strategy-subnav').forEach(nav=>nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('active',b.dataset.go===nav.closest('.screen').id);b.onclick=()=>show(b.dataset.go)}));
+
+if(!slideOrder.includes('section-3-schedule')){
+ const i=slideOrder.indexOf('section-3');slideOrder.splice(i+1,0,'section-3-schedule','section-3-procurement');
+}
+const proposalMenuV8=[...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='PROPOSAL');
+if(proposalMenuV8&&!proposalMenuV8.querySelector('[data-go="section-3-schedule"]')){
+ const anchor=proposalMenuV8.querySelector('[data-go="section-3"]');
+ const scheduleBtn=document.createElement('button');scheduleBtn.className='menu-slide';scheduleBtn.dataset.go='section-3-schedule';scheduleBtn.innerHTML='<span></span>House Planning Schedule';scheduleBtn.onclick=()=>show('section-3-schedule');
+ const procurementBtn=document.createElement('button');procurementBtn.className='menu-slide';procurementBtn.dataset.go='section-3-procurement';procurementBtn.innerHTML='<span></span>Procurement Tracker';procurementBtn.onclick=()=>show('section-3-procurement');
+ anchor.after(procurementBtn);anchor.after(scheduleBtn);
+ [...proposalMenuV8.querySelectorAll('.menu-slide')].forEach((b,i)=>b.querySelector('span').textContent=String(i+1).padStart(2,'0'));
+}
+updateDeckUI(document.querySelector('.screen.active')?.id||'intro');
+</script>
+<!-- V8_STRATEGY_ORG_END -->
+
+
+
+
+<!-- V9_TITLE_INTRO_PROCESS_START -->
+<style>
+/* v9: static title, tightened opening montage, Processes & Systems suite */
+.title-page-v9{overflow:hidden;background:linear-gradient(180deg,#e8f0f5 0 64%,#fff 64% 100%)}
+.title-page-v9:after{content:'';position:absolute;left:0;right:0;top:64%;height:1px;background:rgba(16,29,39,.08)}
+.title-brand-v9{position:absolute;left:4.5vw;top:6.7vh;width:min(27vw,390px);height:auto;object-fit:contain;z-index:3}
+.title-client-v9{position:absolute;right:4.5vw;top:5.6vh;width:min(10vw,130px);height:auto;object-fit:contain;z-index:3}
+.title-building-v9{position:absolute;right:3.5vw;bottom:-4.5vh;height:98vh;width:auto;object-fit:contain;object-position:bottom right;z-index:2;filter:drop-shadow(0 20px 30px rgba(18,35,48,.13))}
+.title-copy-v9{position:absolute;left:4.5vw;bottom:12.5vh;z-index:4}.title-copy-v9 .eyebrow{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.2em;margin-bottom:12px}.title-copy-v9 h1{margin:0;font-size:clamp(52px,6vw,88px);font-weight:250;letter-spacing:-.055em;line-height:.94}.title-copy-v9 p{margin:18px 0 0;color:#5c6266;font-size:clamp(12px,1.1vw,16px);letter-spacing:.045em}
+.title-enter-v9{position:absolute;left:4.5vw;bottom:4.2vh;z-index:5;border:1px solid rgba(0,0,0,.2);background:rgba(255,255,255,.84);backdrop-filter:blur(12px);border-radius:999px;padding:12px 19px;color:#202326;font-size:10px;font-weight:850;letter-spacing:.12em;cursor:pointer;transition:.25s ease}.title-enter-v9:hover{color:#fff;background:var(--red);border-color:var(--red);transform:translateY(-2px)}
+
+.intro.phase-v9-start .hero-client{left:50%!important;top:50%!important;opacity:1!important;filter:none!important;transform:translate(-50%,-50%) scale(.92)!important;transition:opacity .85s ease,transform 1.15s var(--ease),filter .85s ease!important}
+.intro.phase-v9-field .hero-client{transform:translate(-50%,-50%) scale(.68)!important;opacity:.9!important}.intro.phase-v9-start .htl-reveal,.intro.phase-v9-field .htl-reveal{opacity:0!important;transition:none!important}
+.intro.phase-v9-merge .client-logo{opacity:0!important;filter:grayscale(.35) blur(10px)!important;transform:translate(-50%,-50%) scale(.12)!important;transition:left 1.35s var(--ease),top 1.35s var(--ease),opacity 1s ease,transform 1.35s var(--ease),filter 1s ease!important}
+.intro.phase-v9-merge .hero-client{filter:blur(8px)!important;opacity:0!important;transform:translate(-50%,-50%) scale(.18)!important}
+.intro.phase-v9-merge .htl-reveal{opacity:0!important}.intro.phase-v9-htl .htl-reveal{opacity:1!important;transform:scale(1)!important;transition:opacity 1.1s var(--ease),transform 1.45s var(--ease)!important}
+.intro.phase-v9-htl .client-logo{opacity:0!important;filter:blur(12px)!important}.intro.phase-v9-htl .hero-client{opacity:0!important}
+.intro.playing .progress{animation-duration:5.6s!important}.intro .target-ring,.intro .hinduja-ring,.intro .orbit{display:none!important}
+
+.process-suite{background:#f7f7f5;color:#161718;overflow:hidden}.process-shell{height:100%;padding:4.2vh 3.7vw 78px;display:flex;flex-direction:column}.process-head{height:72px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #d9d9d6;padding-bottom:14px;flex:0 0 auto}.process-head .kicker{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.19em}.process-head h2{margin:0 82px 0 0;max-width:66%;text-align:right;font-size:clamp(28px,3.4vw,50px);line-height:.9;letter-spacing:-.055em}.process-head h2 span{font-weight:270}.process-body{flex:1;min-height:0;padding-top:3vh}
+.process-subnav{position:absolute;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:3px;border:1px solid #dededb;border-radius:999px;background:rgba(255,255,255,.96);padding:5px 7px;box-shadow:0 10px 28px rgba(0,0,0,.08)}.process-subnav button{border:0;border-radius:999px;background:transparent;color:#777;padding:10px 14px;font-size:7.5px;font-weight:850;letter-spacing:.045em;white-space:nowrap;cursor:pointer}.process-subnav button.active{background:var(--red);color:#fff}.process-subnav button:hover:not(.active){background:#f0f0ee;color:#222}#section-4 .back,#section-4 .hint{display:none!important}
+
+.escalation-grid{height:100%;display:grid;grid-template-columns:32% 1fr;gap:4vw;align-items:stretch}.escalation-intro{padding-top:3vh}.escalation-intro p{max-width:380px;color:#686868;font-size:15px;line-height:1.55}.escalation-stair{position:relative;min-height:0}.escalation-stair:before{content:'';position:absolute;left:6%;bottom:8%;width:82%;height:2px;background:linear-gradient(90deg,#b8d99a,#ffc04f,#ff6538,#ed1c24);transform:rotate(-38deg);transform-origin:left center}.esc-step{position:absolute;width:31%;text-align:right}.esc-step:before{content:'';display:block;height:3px;background:var(--c);margin-bottom:8px;border-radius:99px}.esc-step strong{display:block;font-size:14px;letter-spacing:.01em}.esc-step span{display:block;color:#666;font-size:11px;margin-top:4px}.esc-1{left:5%;bottom:6%;--c:#79c94d}.esc-2{left:26%;bottom:26%;--c:#ffc04f}.esc-3{left:48%;bottom:48%;--c:#ff6d20}.esc-4{left:68%;bottom:69%;--c:#ff3a29}.esc-5{left:82%;bottom:86%;width:16%;--c:#ed1c24}
+
+.leadership-layout{height:100%;display:grid;grid-template-columns:170px 1fr;gap:30px}.leadership-title{display:flex;align-items:flex-end;padding-bottom:4vh}.leadership-title strong{font-size:clamp(34px,4vw,58px);line-height:.85;letter-spacing:-.045em;writing-mode:vertical-rl;transform:rotate(180deg)}.leadership-title span{font-weight:250;color:#555}.bar-chart{position:relative;border-left:1px solid #aaa;border-bottom:1px solid #aaa;padding:38px 18px 34px;display:grid;grid-template-columns:repeat(4,1fr);gap:3.2vw;align-items:end;background:repeating-linear-gradient(to top,transparent 0,transparent calc(20% - 1px),#e2e2df 20%)}.chart-group{height:100%;display:flex;align-items:flex-end;justify-content:center;gap:5px;position:relative}.chart-group label{position:absolute;left:50%;bottom:-25px;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:750}.bar{width:16%;height:calc(var(--v)*1%);background:var(--c);border-radius:3px 3px 0 0;min-height:2px}.chart-legend{position:absolute;left:210px;right:3.7vw;top:15.5vh;display:flex;justify-content:center;gap:22px;z-index:3}.chart-legend span{font-size:8px;font-weight:750;white-space:nowrap}.chart-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+
+.delivery-layout{height:100%;display:grid;grid-template-columns:1fr 220px;gap:32px}.delivery-copy{display:flex;flex-direction:column;min-height:0}.delivery-copy>p{margin:0 0 18px;color:#555;font-size:15px}.delivery-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #cfcfcb;border-radius:16px;overflow:hidden;background:#fff}.delivery-table th,.delivery-table td{text-align:left;padding:18px 16px;border-right:1px solid #d7d7d4;border-bottom:1px solid #d7d7d4;font-size:13px;line-height:1.4}.delivery-table th{background:#ffe3e4;font-size:11px;letter-spacing:.08em}.delivery-table tr:last-child td{border-bottom:0}.delivery-table th:last-child,.delivery-table td:last-child{border-right:0}.delivery-metrics{display:grid;align-content:start;gap:12px}.delivery-metric{border-left:3px solid var(--red);padding:15px 0 15px 16px}.delivery-metric strong{display:block;color:var(--red);font-size:34px;line-height:1}.delivery-metric span{font-size:12px;color:#555;line-height:1.3}
+
+.leadtime-layout{height:100%;display:grid;grid-template-columns:1fr 1fr;gap:28px}.leadtime-col{display:flex;flex-direction:column;gap:12px;min-height:0}.leadtime-title{color:var(--red);font-size:13px;font-weight:850;letter-spacing:.08em}.leadtime-title span{color:#191919;font-weight:400}.leadtime-table{width:100%;border-collapse:collapse;background:#fff}.leadtime-table th,.leadtime-table td{border:1px solid #d9d9d6;padding:7px 9px;text-align:left;font-size:9px;line-height:1.15}.leadtime-table th{font-weight:850;background:#f6f6f4}.leadtime-table td:first-child,.leadtime-table th:first-child{width:42px;text-align:right}.leadtime-note{font-size:10px;color:#6a6a68;margin-top:auto}
+
+.innovation-layout{height:100%;display:grid;grid-template-columns:43% 1fr;gap:28px}.innovation-copy h3{margin:2vh 0 8px;font-size:clamp(23px,2.8vw,40px);line-height:1.08}.innovation-copy h3 span{font-weight:300}.innovation-copy h4{margin:0 0 10px;color:var(--red);font-size:13px;letter-spacing:.06em}.innovation-copy ul{margin:0;padding-left:20px;font-size:15px;line-height:1.7}.innovation-curve{position:relative;min-height:0;border-right:5px solid #d8d8e1;border-bottom:5px solid #d8d8e1;border-radius:0 0 100% 0}.innovation-bubble{position:absolute;width:clamp(82px,9.3vw,132px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:12px;background:var(--bg);font-size:10px;line-height:1.15;box-shadow:0 12px 25px rgba(237,28,36,.08)}.ib1{left:1%;bottom:2%;--bg:#ffb2b5}.ib2{left:23%;bottom:9%;--bg:#ff858a}.ib3{left:46%;bottom:20%;--bg:#ff5b62}.ib4{left:66%;bottom:39%;--bg:#ff3d45}.ib5{left:77%;bottom:66%;--bg:#ff1f2a;color:#fff}.ib6{right:0;top:0;--bg:#ff969a}
+
+@media(max-width:900px){.title-building-v9{right:-8vw;height:88vh}.title-brand-v9{width:34vw}.title-client-v9{width:13vw}.title-copy-v9 h1{font-size:52px}.process-shell{padding:25px 24px 72px}.process-head{height:58px}.process-head h2{font-size:25px;margin-right:100px;max-width:60%}.process-subnav button{font-size:5.7px;padding:8px 8px}.process-body{padding-top:16px}.chart-legend{left:150px;gap:9px}.chart-legend span{font-size:7px}.leadership-layout{grid-template-columns:115px 1fr}.leadership-title strong{font-size:36px}.delivery-table th,.delivery-table td{padding:13px 10px;font-size:10px}.innovation-copy ul{font-size:11px}.innovation-bubble{font-size:8.5px}.leadtime-table th,.leadtime-table td{font-size:7.5px;padding:5px 7px}}
+</style>
+<script>
+const titleV9=document.createElement('section');titleV9.id='title-page';titleV9.className='screen title-page-v9';titleV9.setAttribute('aria-label','HTL Hinduja Capability Deck title');titleV9.innerHTML='<img class="title-brand-v9" src="/media/6434847175659d3f.png" alt="HTL 30 years"><img class="title-client-v9" src="/media/aa930eba0258fbb9.png" alt="Hinduja"><img class="title-building-v9" src="/media/3f03dd6b12deb106.jpg" alt="Hinduja House"><div class="title-copy-v9"><div class="eyebrow">HTL · HINDUJA HOUSE</div><h1>Capability Deck</h1><p>Project Proposal · MEP Basebuild</p></div><button class="title-enter-v9">BEGIN PRESENTATION&nbsp;&nbsp;→</button>';
+document.querySelector('main.stage').insertBefore(titleV9,document.querySelector('#intro'));
+const showTitleV9=()=>{clearTimers();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));titleV9.classList.add('active');document.body.classList.add('deck-ui-hidden')};
+const playV9=()=>{clearTimers();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));const i=document.querySelector('#intro');i.className='screen intro active playing phase-idle phase-v9-start';updateDeckUI('intro');void i.offsetWidth;timers.push(setTimeout(()=>i.className='screen intro active playing phase-field phase-v9-field',900));timers.push(setTimeout(()=>i.className='screen intro active playing phase-merge phase-v9-merge',2550));timers.push(setTimeout(()=>i.className='screen intro active playing phase-htl phase-v9-htl',3750));timers.push(setTimeout(()=>show('agenda'),5600))};
+titleV9.querySelector('.title-enter-v9').onclick=playV9;document.querySelector('#replay').onclick=playV9;document.querySelector('#skip').onclick=()=>{clearTimers();show('agenda')};
+
+const processNavV9='<nav class="process-subnav"><button data-go="section-4">PROCESSES &amp; SYSTEMS</button><button data-go="section-4-escalation">ESCALATION MATRIX</button><button data-go="section-4-leadership">LEADERSHIP INVOLVEMENT</button><button data-go="section-4-delivery">ON-TIME DELIVERY</button><button data-go="section-4-leadtime-a">CAPITAL LEAD TIMES</button><button data-go="section-4-innovation">INNOVATION IN DESIGNING</button></nav>';
+const processOverviewV9=document.querySelector('#section-4');if(processOverviewV9&&!processOverviewV9.querySelector('.process-subnav'))processOverviewV9.insertAdjacentHTML('beforeend',processNavV9);
+const makeProcessV9=(id,title,body)=>{const s=document.createElement('section');s.id=id;s.className='screen process-suite';s.innerHTML='<div class="process-shell"><header class="process-head"><div class="kicker">04 · PROCESSES &amp; SYSTEMS</div><h2>'+title+'</h2></header><div class="process-body">'+body+'</div></div>'+processNavV9;document.querySelector('#sections').appendChild(s);return s};
+
+const escalationV9=makeProcessV9('section-4-escalation','<strong>ESCALATION</strong> <span>MATRIX</span>','<div class="escalation-grid"><div class="escalation-intro"><p>A clear escalation path keeps decisions moving at the right level, with leadership visibility maintained from site execution through MEP governance.</p></div><div class="escalation-stair"><div class="esc-step esc-1"><strong>SR. PROJECT ENGINEER</strong><span>Mechanical &amp; Electrical</span></div><div class="esc-step esc-2"><strong>PROJECT MANAGER</strong><span>Rupesh / Latesh</span></div><div class="esc-step esc-3"><strong>OPERATION HEAD</strong><span>Sanju</span></div><div class="esc-step esc-4"><strong>OPERATION HEAD</strong><span>Balaji</span></div><div class="esc-step esc-5"><strong>MEP HEAD</strong><span>Sachin Baraskar</span></div></div></div>');
+
+const seriesV9=[['DESIGN STAGE',[25,30,100,25,20]],['SOURCING STAGE',[30,35,35,100,20]],['EXECUTION STAGE',[20,25,20,50,15]],['T&amp;C, HANDOVER',[15,20,25,10,10]]];const colorsV9=['#ff9297','#ff333b','#d9d9e2','#676767','#111'];
+const barsV9=seriesV9.map(g=>'<div class="chart-group">'+g[1].map((v,i)=>'<i class="bar" style="--v:'+v+';--c:'+colorsV9[i]+'" title="'+v+'%"></i>').join('')+'<label>'+g[0]+'</label></div>').join('');
+const leadershipV9=makeProcessV9('section-4-leadership','<strong>LEADERSHIP</strong> <span>INVOLVEMENT</span>','<div class="chart-legend"><span style="--c:#ff9297"><i></i>OPERATIONS HEAD</span><span style="--c:#ff333b"><i></i>HEAD OF PROJECTS</span><span style="--c:#d9d9e2"><i></i>DESIGN TEAM</span><span style="--c:#676767"><i></i>SOURCING TEAM</span><span style="--c:#111"><i></i>SR. MANAGEMENT</span></div><div class="leadership-layout"><div class="leadership-title"><strong>INTERNAL STAKEHOLDER <span>INVOLVEMENT</span></strong></div><div class="bar-chart">'+barsV9+'</div></div>');
+
+const deliveryV9=makeProcessV9('section-4-delivery','<strong>SURETY</strong> <span>FOR ON-TIME DELIVERY</span>','<div class="delivery-layout"><div class="delivery-copy"><p>Categorisation of items &amp; timely ordering for resources</p><table class="delivery-table"><thead><tr><th>CLASS</th><th>TYPE</th><th>EXAMPLES</th></tr></thead><tbody><tr><td>A</td><td>Make-to-order items</td><td>VRV, TFA (SMART) CSU, FAN, SELF BALANCING, ENERGY VALVE</td></tr><tr><td>B</td><td>Standard stock items</td><td>VAV, CAV FILTER, DUCTING, INSULATION, DRY SCRUBBER, ADP, VALVES, STARTER PANEL</td></tr><tr><td>C</td><td>Ready stock &amp; accessories</td><td>MS PIPING, COPPER PIPING, DRAIN PIPING, CABLING, CABLE TRAY</td></tr></tbody></table></div><aside class="delivery-metrics"><div class="delivery-metric"><strong>95–98%</strong><span>ON-TIME DELIVERY RATES</span></div><div class="delivery-metric"><strong>85%</strong><span>WITHIN BUDGET</span></div></aside></div>');
+
+const leadTableV9=rows=>'<table class="leadtime-table"><thead><tr><th>Sr.No</th><th>Item</th><th>Lead Time</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</tbody></table>';
+const classA1V9=[[1,'Busduct','6 to 8 weeks'],[2,'RMU','8 to 10 weeks'],[3,'CSS','12 to 14 weeks'],[4,'UPS','10 to 12 weeks'],[5,'LT Panel','10 to 12 weeks'],[6,'Light Fixture','8 to 12 weeks'],[7,'SS Seismic Support','8 to 10 weeks'],[8,'FA Panel','6 to 8 weeks'],[9,'PHE Pump','8 to 12 weeks'],[10,'Cable Tray','6 to 8 weeks'],[11,'Cable & Wire','4 to 5 weeks'],[12,'FF Pump','12 to 18 weeks'],[13,'FF Panel','8 to 12 weeks'],[14,'Fire Hydrant Accessories','4 to 8 weeks'],[15,'LED Signages','6 to 8 weeks'],[16,'WTP & RO Plant','8 to 12 weeks'],[18,'EC Fan','10 to 12 weeks'],[19,'Inline Fan','5 to 6 weeks']];
+const classA2V9=[[1,'Cabinet Units with EC Fans','8 - 9 Weeks'],[2,'Dry scrubber','5 - 6 Weeks'],[3,'Tube Axial Exhaust Fan','16 - 18 Weeks'],[4,'PAC','14 - 16 Weeks'],[5,'VRV','4 - 5 Weeks']];
+const leadAV9=makeProcessV9('section-4-leadtime-a','<strong>CAPITAL ITEMS</strong> <span>LEAD TIME · CLASS A</span>','<div class="leadtime-layout"><div class="leadtime-col"><div class="leadtime-title">CLASS A <span>ITEMS · PRIMARY SCHEDULE</span></div>'+leadTableV9(classA1V9)+'</div><div class="leadtime-col"><div class="leadtime-title">CLASS A <span>ITEMS · SPECIALIST EQUIPMENT</span></div>'+leadTableV9(classA2V9)+'<div class="leadtime-note">Make-to-order items are released against the procurement schedule and approved technical submittals.</div></div></div>');
+const classB1V9=[[1,'DB','2–3 weeks'],[2,'Earthing','1–2 weeks'],[3,'Amplifier','4–6 weeks'],[4,'Speaker','4–6 weeks'],[5,'FA Detector','4–6 weeks'],[6,'Response Indicator','4–6 weeks'],[7,'Cat 6 Cable','4–5 weeks'],[8,'Control Module','4–6 weeks'],[9,'Valves','2–4 weeks'],[10,'MS Pipe','1–3 weeks']];
+const classB2V9=[[1,'Motorised Fire Damper','4 - 5 Weeks'],[2,'Fire Damper with Fusible link','4 - 5 Weeks'],[3,'Ducting','2–3 weeks'],[4,'Volume Control Damper','4 - 5 Weeks'],[5,'Grilles','2–3 weeks'],[6,'Refrigerant pipe','2 - 3 Weeks']];
+const classC1V9=[[1,'Conduit','3–4 weeks'],[2,'Wire','4–5 weeks'],[3,'Switch Socket','2–3 weeks'],[4,'Safety Material','1–2 weeks'],[5,'Cable Gland','2–3 weeks']];const classC2V9=[[1,'Insulation','1 - 2 Weeks'],[2,'Drain pipe','1 Week'],[3,'Cables','1 - 2 Weeks']];
+const leadBCV9=makeProcessV9('section-4-leadtime-bc','<strong>CAPITAL ITEMS</strong> <span>LEAD TIME · CLASS B &amp; C</span>','<div class="leadtime-layout"><div class="leadtime-col"><div class="leadtime-title">CLASS B <span>ITEMS</span></div>'+leadTableV9(classB1V9)+leadTableV9(classB2V9)+'</div><div class="leadtime-col"><div class="leadtime-title">CLASS C <span>ITEMS</span></div>'+leadTableV9(classC1V9)+leadTableV9(classC2V9)+'</div></div>');
+
+const innovationV9=makeProcessV9('section-4-innovation','<strong>INNOVATION</strong> <span>IN DESIGNING</span>','<div class="innovation-layout"><div class="innovation-copy"><h3><strong>Auto CAD &amp; BIM</strong> <span>– Design Solutions</span></h3><h4>BIM MODELLING</h4><ul><li>Accuracy upto LOD 450</li><li>Structural coordination</li><li>Fit-up drawings</li><li>3D &amp; 4D BIM execution</li></ul></div><div class="innovation-curve"><div class="innovation-bubble ib1">3-D BIM<br>Services</div><div class="innovation-bubble ib2">3-D As-Built<br>Documentation</div><div class="innovation-bubble ib3">4-D Construction<br>Scheduling &amp; Site<br>Logistics</div><div class="innovation-bubble ib4">5-D Cost Monitoring &amp;<br>Procurement Management</div><div class="innovation-bubble ib5">Quantity Take offs<br>Revit Family Creation</div><div class="innovation-bubble ib6">Clash Detection<br>&amp; Risk Mitigation</div></div></div>');
+
+document.querySelectorAll('#section-4 .process-subnav,#section-4-escalation .process-subnav,#section-4-leadership .process-subnav,#section-4-delivery .process-subnav,#section-4-leadtime-a .process-subnav,#section-4-leadtime-bc .process-subnav,#section-4-innovation .process-subnav').forEach(nav=>nav.querySelectorAll('button').forEach(b=>{const id=nav.closest('.screen').id;b.classList.toggle('active',b.dataset.go===id||(id==='section-4-leadtime-bc'&&b.dataset.go==='section-4-leadtime-a'));b.onclick=()=>show(b.dataset.go)}));
+if(!slideOrder.includes('section-4-escalation')){const i=slideOrder.indexOf('section-4');slideOrder.splice(i+1,0,'section-4-escalation','section-4-leadership','section-4-delivery','section-4-leadtime-a','section-4-leadtime-bc','section-4-innovation')}
+const proposalV9=[...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='PROPOSAL');if(proposalV9&&!proposalV9.querySelector('[data-go="section-4-escalation"]')){const a=proposalV9.querySelector('[data-go="section-4"]');[['section-4-innovation','Innovation in Designing'],['section-4-leadtime-bc','Capital Lead Times · Class B/C'],['section-4-leadtime-a','Capital Lead Times · Class A'],['section-4-delivery','On-Time Delivery'],['section-4-leadership','Leadership Involvement'],['section-4-escalation','Escalation Matrix']].forEach(([id,label])=>{const b=document.createElement('button');b.className='menu-slide';b.dataset.go=id;b.innerHTML='<span></span>'+label;b.onclick=()=>{show(id);closeDeckMenu()};a.after(b)});[...proposalV9.querySelectorAll('.menu-slide')].forEach((b,i)=>b.querySelector('span').textContent=String(i+1).padStart(2,'0'))}
+showTitleV9();
+</script>
+<!-- V9_TITLE_INTRO_PROCESS_END -->
+
+
+<!-- V10_HNI_LEED_STAKEHOLDER_ARC_START -->
+<style>
+/* v10: HNI collaboration grid, LEED certifications, stakeholder mapping, arc-flow (escalation + innovation redesign) */
+.hni-v10 .hni-head{left:0!important;right:0!important;top:0!important;bottom:auto!important;width:100%!important;height:auto!important;padding:5.2vh 3.6vw 3vh!important;border-right:0!important;border-bottom:0!important;background:#fff!important;position:relative!important}
+.hni-v10 .hni-head .eyebrow{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.19em}
+.hni-v10 .hni-head h2{font-size:clamp(30px,3.6vw,52px)!important;margin:10px 0 0!important;line-height:.95!important;letter-spacing:-.03em}
+.hni-v10 .hni-wall{position:relative!important;left:0!important;right:0!important;top:auto!important;bottom:auto!important;padding:0 3.4vw 80px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:none!important;gap:16px!important;background:#fff!important}
+.hni-card{background:#f4f4f2;border-radius:14px;padding:20px 18px 18px;display:flex;flex-direction:column;min-height:150px}
+.hni-card .hni-card-art{height:46px;display:flex;align-items:center;justify-content:flex-start;margin-bottom:14px}
+.hni-card .hni-card-art img{max-height:100%;max-width:150px;object-fit:contain}
+.hni-card .hni-card-art .wordmark-fallback{font-size:15px;font-weight:800;letter-spacing:-.02em;color:#26272a;line-height:1.15}
+.hni-card .hni-card-art .wordmark-fallback small{display:block;font-size:9px;font-weight:700;letter-spacing:.1em;color:#9a9a97;margin-top:2px}
+.hni-card hr{border:0;border-top:1px solid #d9d9d6;margin:0 0 12px}
+.hni-card strong{font-size:14px;font-weight:800;line-height:1.25;color:#171718}
+.hni-card span{display:block;margin-top:5px;font-size:11.5px;color:#767674}
+
+.leed-slide{background:#fff;color:#161718;overflow:auto}
+.leed-shell{min-height:100%;padding:4.2vh 3.7vw 60px;display:flex;flex-direction:column}
+.leed-head{border-bottom:1px solid #e4e4e2;padding-bottom:16px;margin-bottom:26px;flex:0 0 auto}
+.leed-head .kicker{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.19em}
+.leed-head h2{margin:8px 0 10px;font-size:clamp(32px,3.8vw,54px);line-height:.95;letter-spacing:-.03em}
+.leed-head h2 span{font-weight:300}
+.leed-head p{margin:0;max-width:640px;color:#606060;font-size:14.5px;line-height:1.55}
+.leed-body{display:grid;grid-template-columns:220px 1fr;gap:34px;align-items:start}
+.leed-badge{border:1.5px dashed #cfcfcb;border-radius:50%;width:200px;height:200px;display:flex;align-items:center;justify-content:center;text-align:center;color:#a8a8a5;font-size:11px;font-weight:750;letter-spacing:.05em;line-height:1.5;padding:20px;background:#fafaf9}
+.leed-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.leed-card{position:relative;background:#f7f7f5;border-radius:12px;padding:14px 14px 12px;min-height:96px}
+.leed-card strong{display:block;font-size:13px;font-weight:800;color:#171718;margin-bottom:6px;line-height:1.2}
+.leed-card .leed-loc,.leed-card .leed-area{display:block;font-size:10.5px;color:#767674;line-height:1.5}
+.leed-card .leed-rating{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:850;letter-spacing:.06em;color:#fff;padding:3px 8px;border-radius:999px}
+.leed-card .leed-rating.gold{background:#c9971f}
+.leed-card .leed-rating.platinum{background:#5a6570}
+@media(max-width:900px){.leed-body{grid-template-columns:1fr}.leed-badge{width:140px;height:140px;margin:0 auto}.leed-grid{grid-template-columns:repeat(2,1fr)}}
+
+.stakeholder-slide{background:#fff;color:#161718}
+.stakeholder-shell{height:100%;padding:4.2vh 3.7vw;display:flex;flex-direction:column}
+.stakeholder-head{flex:0 0 auto}
+.stakeholder-head .kicker{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.19em}
+.stakeholder-head h2{margin:8px 0 0;font-size:clamp(32px,3.8vw,54px);line-height:.95;letter-spacing:-.03em}
+.stakeholder-head h2 strong{color:var(--red);font-weight:800}
+.stakeholder-head h2 span{display:block;font-weight:800;color:#171718}
+.stakeholder-arc-wrap{flex:1;min-height:0;display:flex;align-items:center}
+
+/* shared arc-flow component (stakeholder mapping, escalation matrix, innovation) */
+.arc-flow{position:relative;width:100%;height:340px;padding-top:96px}
+.arc-flow-svg{position:absolute;left:0;right:0;top:96px;width:100%;height:calc(100% - 96px)}
+.arc-node{position:absolute;transform:translate(-50%,calc(-100% - 16px));text-align:center;width:170px}
+.arc-node strong{display:block;font-size:14px;font-weight:800;color:#171718;line-height:1.2}
+.arc-node span{display:block;margin-top:4px;font-size:11.5px;color:#767674}
+.arc-node.below{transform:translate(-50%,20px)}
+
+.escalation-grid-v10{height:100%;display:grid;grid-template-columns:30% 1fr;gap:4vw;align-items:center}
+.escalation-intro-v10 p{max-width:340px;color:#686868;font-size:15px;line-height:1.6}
+.escalation-intro-v10 .esc-caption{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.15em;margin-bottom:14px}
+
+.innovation-layout-v10{height:100%;display:grid;grid-template-columns:38% 1fr;gap:28px;align-items:center}
+.innovation-copy-v10 h3{margin:0 0 8px;font-size:clamp(23px,2.6vw,36px);line-height:1.08}
+.innovation-copy-v10 h3 span{font-weight:300}
+.innovation-copy-v10 h4{margin:0 0 10px;color:var(--red);font-size:13px;letter-spacing:.06em}
+.innovation-copy-v10 ul{margin:0;padding-left:20px;font-size:14.5px;line-height:1.7;color:#333}
+.arc-node.compact{width:150px}
+.arc-node.compact strong{font-size:12px}
+.arc-node.compact span{font-size:10px}
+
+@media(max-width:900px){
+ .hni-v10 .hni-wall{grid-template-columns:repeat(2,1fr)}
+ .leed-grid{grid-template-columns:repeat(2,1fr)}
+ .escalation-grid-v10,.innovation-layout-v10{grid-template-columns:1fr;gap:14px}
+ .arc-flow{height:280px}
+}
+</style>
+<script>
+(function(){
+const LOGO_V10 = {"bajaj": "/media/6b6a8b2c6c161585.png", "adityaBirla": "/media/73632e796ac0609c.png", "poonawalla": "/media/664cefedd6aec5d3.png", "reliance": "/media/70bcff2e093739cd.png", "tata": "/media/2d03bf208e133c1a.png", "rare": "/media/322366db0329db69.png", "kotak": "/media/2cac966091a5ae3e.png", "gdgoenka": "/media/8cc93c32fc755308.png", "piramal": "/media/a64cc4469f701295.png", "navinfluorine": "/media/947fcb0390f8698e.png"};
+
+function wordmark(text, small){
+  return '<div class="wordmark-fallback">'+text+(small?'<small>'+small+'</small>':'')+'</div>';
+}
+function logoArt(key, alt){
+  return '<img src="'+LOGO_V10[key]+'" alt="'+alt+' logo">';
+}
+
+// ---------- Catmull-Rom smooth path through given points (dots always sit exactly on the line) ----------
+function smoothPath(pts){
+  let d = 'M '+pts[0][0]+','+pts[0][1]+' ';
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+    const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+    d += 'C '+c1x+','+c1y+' '+c2x+','+c2y+' '+p2[0]+','+p2[1]+' ';
+  }
+  return d;
+}
+function arcFlow(nodes, opts){
+  opts = opts||{};
+  const vbW=1000, vbH=opts.vbH||264;
+  const pts = nodes.map(n=>[n.x, n.y]);
+  const pathD = smoothPath(pts);
+  const dots = nodes.map(n=>'<circle cx="'+n.x+'" cy="'+n.y+'" r="9" fill="'+(n.color||'#ed1c24')+'" stroke="#fff" stroke-width="2"/>').join('');
+  const svg = '<svg class="arc-flow-svg" viewBox="0 0 '+vbW+' '+vbH+'" preserveAspectRatio="none">'
+    + '<path d="'+pathD+'" fill="none" stroke="'+(opts.stroke||'#e2e2df')+'" stroke-width="2.5"/>'
+    + dots + '</svg>';
+  const labels = nodes.map(n=>{
+    const left=(n.x/vbW*100).toFixed(2)+'%';
+    const top=(n.y/vbH*100).toFixed(2)+'%';
+    const cls='arc-node'+(opts.compact?' compact':'')+(n.below?' below':'');
+    return '<div class="'+cls+'" style="left:'+left+';top:'+top+'"><strong>'+n.title+'</strong><span>'+n.sub+'</span></div>';
+  }).join('');
+  return '<div class="arc-flow" style="'+(opts.height?('height:'+opts.height+'px'):'')+'">'+svg+labels+'</div>';
+}
+
+// ============ 1. HNI Collaboration grid (#about-hni) ============
+const hniV10 = document.querySelector('#about-hni');
+if(hniV10){
+  const cardsData = [
+    {logo:'bajaj', name:'Bajaj Family', loc:'Mumbai'},
+    {text:wordmark('PHOENIX','THE PHOENIX MILLS LTD'), name:'Atul Ruia residence', loc:'Nepean Sea Rd, Mumbai'},
+    {logo:'adityaBirla', name:'Ananya Birla’s House', loc:'Worli'},
+    {logo:'poonawalla', name:'Poonawala', loc:'Pune'},
+    {text:wordmark('BURMAN','DSC'), name:'Burman Estate Hotel', loc:'Delhi'},
+    {logo:'reliance', name:'Sr. Executive’s houses, Guest House, Hospital', loc:'Mumbai'},
+    {logo:'tata', name:'Chandrashekar Tata', loc:'Peddar Road'},
+    {logo:'rare', name:'Rakesh Junjunwala’s house', loc:'Kambala Hill, Mumbai'},
+    {logo:'kotak', name:'Kotak’s Residence + Bank', loc:'Mumbai'},
+    {logo:'gdgoenka', name:'Family Residence', loc:'Juhu, Mumbai'},
+    {logo:'piramal', name:'Rajiv Piramal’s Residence', loc:'Worli'},
+    {logo:'navinfluorine', name:'Padmanab Mufatlal Residence', loc:'Aultamont Worli'}
+  ];
+  const cardsHTML = cardsData.map(c=>{
+    const art = c.logo ? logoArt(c.logo, c.name) : c.text;
+    return '<article class="hni-card"><div class="hni-card-art">'+art+'</div><hr><strong>'+c.name+'</strong><span>'+c.loc+'</span></article>';
+  }).join('');
+  const existingNav = hniV10.querySelector('.about-nav')?.outerHTML||'';
+  hniV10.className = 'screen hni hni-v10';
+  hniV10.innerHTML = '<div class="hni-head"><div class="eyebrow">PROJECTS</div><h2>HNI<br><span>COLLABORATION</span></h2></div><div class="hni-wall">'+cardsHTML+'</div>'+existingNav;
+}
+
+// ============ 2. LEED Certifications (#about-leed) — new section ============
+const leedDataV10 = [
+  {name:'UBS', loc:'Pune, Navi Mumbai', area:'3 lakh sq.ft'},
+  {name:'Infor', loc:'Hyderabad', area:'4 lakh sq.ft'},
+  {name:'JM Financial', loc:'Mumbai', area:'0.9 lakh sq.ft'},
+  {name:'DBS', loc:'Mumbai', area:'1.35 lakh sq.ft'},
+  {name:'TIAA', loc:'Mumbai', area:'1 lakh sq.ft'},
+  {name:'Morgan Stanley', loc:'Mumbai, Bangalore', area:'1.80 lakh sq.ft'},
+  {name:'Crisil', loc:'Mumbai', area:'1.25 lakh sq.ft'},
+  {name:'Citibank', loc:'Mumbai', area:'0.5 lakh sq.ft'},
+  {name:'Bharat Petroleum', loc:'Pune', area:'2 lakh sq.ft'},
+  {name:'Microsoft', loc:'Hyderabad', area:'4 lakh sq.ft'},
+  {name:'Elcome', loc:'Navi Mumbai (MIDC)', area:'1.0 lakh sq.ft', rating:'Platinum'},
+  {name:'Standard &amp; Poor’s', loc:'Ahmedabad', area:'3 lakh sq.ft', rating:'Gold'},
+  {name:'Phoenix', loc:'Hyderabad', area:'2 lakh sq.ft', rating:'Gold'}
+];
+const leedCardsHTML = leedDataV10.map(c=>{
+  const pill = c.rating ? '<div class="leed-rating '+c.rating.toLowerCase()+'">'+c.rating+'</div>' : '';
+  return '<div class="leed-card">'+pill+'<strong>'+c.name+'</strong><span class="leed-loc">'+c.loc+'</span><span class="leed-area">'+c.area+'</span></div>';
+}).join('');
+let leedV10 = document.querySelector('#about-leed');
+if(!leedV10){
+  leedV10 = document.createElement('section');
+  leedV10.id='about-leed'; leedV10.className='screen leed-slide';
+  document.querySelector('#sections').appendChild(leedV10);
+}
+leedV10.innerHTML = '<div class="leed-shell"><header class="leed-head"><div class="kicker">01 · ABOUT HTL</div><h2>LEED<span> CERTIFICATIONS</span></h2><p>Major LEED-certified and LEED-pursuing jobs executed across marquee corporate and institutional campuses.</p></header><div class="leed-body"><div class="leed-badge">LEED / USGBC<br>CERTIFICATION LOGO<br>&mdash; TO BE ADDED</div><div class="leed-grid">'+leedCardsHTML+'</div></div></div>';
+
+// ============ 3. Stakeholder Mapping (#section-2-stakeholder) — new section ============
+const stakeholderNodesV10 = [
+  {x:130, y:230, title:'PMC', sub:'JLL', color:'#ed1c24'},
+  {x:315, y:130, title:'Civil', sub:'Capacite', color:'#ed1c24'},
+  {x:500, y:60, title:'MEP Consultant', sub:'Rayls', color:'#ed1c24'},
+  {x:685, y:130, title:'Architect', sub:'SOM + TPA', color:'#ed1c24'},
+  {x:870, y:230, title:'Client', sub:'Hinduja', color:'#ed1c24'}
+];
+let stakeholderV10 = document.querySelector('#section-2-stakeholder');
+if(!stakeholderV10){
+  stakeholderV10 = document.createElement('section');
+  stakeholderV10.id='section-2-stakeholder'; stakeholderV10.className='screen stakeholder-slide';
+  document.querySelector('#sections').appendChild(stakeholderV10);
+}
+stakeholderV10.innerHTML = '<div class="stakeholder-shell"><header class="stakeholder-head"><div class="kicker">02 · ABOUT THE PROJECT</div><h2><strong>STAKEHOLDER</strong><span>MAPPING</span></h2></header><div class="stakeholder-arc-wrap">'+arcFlow(stakeholderNodesV10,{vbH:264,height:280})+'</div></div>';
+
+// ============ 4. Escalation Matrix redesign (#section-4-escalation) ============
+const escalationNodesV10 = [
+  {x:130, y:300, title:'SR. PROJECT ENGINEER', sub:'Mechanical & Electrical', color:'#79c94d'},
+  {x:315, y:225, title:'PROJECT MANAGER', sub:'Rupesh / Latesh', color:'#ffc04f'},
+  {x:500, y:150, title:'OPERATION HEAD', sub:'Sanju', color:'#ff6d20'},
+  {x:685, y:85, title:'OPERATION HEAD', sub:'Balaji', color:'#ff3a29'},
+  {x:870, y:36, title:'MEP HEAD', sub:'Sachin Baraskar', color:'#ed1c24'}
+];
+const escalationBodyV10 = document.querySelector('#section-4-escalation .process-body');
+if(escalationBodyV10){
+  escalationBodyV10.innerHTML = '<div class="escalation-grid-v10"><div class="escalation-intro-v10"><div class="esc-caption">REPORTING PATH</div><p>A clear escalation path keeps decisions moving at the right level, with leadership visibility maintained from site execution through MEP governance.</p></div>'+arcFlow(escalationNodesV10,{vbH:340,height:320})+'</div>';
+}
+
+// ============ 5. Innovation in Designing redesign (#section-4-innovation) ============
+const innovationNodesV10 = [
+  {x:115, y:300, title:'3-D BIM Services', sub:'', color:'#ffb2b5'},
+  {x:269, y:250, title:'3-D As-Built Documentation', sub:'', color:'#ff858a'},
+  {x:423, y:195, title:'4-D Construction Scheduling & Site Logistics', sub:'', color:'#ff5b62'},
+  {x:577, y:140, title:'5-D Cost Monitoring & Procurement Mgmt', sub:'', color:'#ff3d45'},
+  {x:731, y:85, title:'Quantity Take-offs & Revit Family Creation', sub:'', color:'#ff1f2a'},
+  {x:885, y:36, title:'Clash Detection & Risk Mitigation', sub:'', color:'#ed1c24'}
+];
+const innovationBodyV10 = document.querySelector('#section-4-innovation .process-body');
+if(innovationBodyV10){
+  innovationBodyV10.innerHTML = '<div class="innovation-layout-v10"><div class="innovation-copy-v10"><h3><strong>Auto CAD &amp; BIM</strong> <span>&ndash; Design Solutions</span></h3><h4>BIM MODELLING</h4><ul><li>Accuracy upto LOD 450</li><li>Structural coordination</li><li>Fit-up drawings</li><li>3D &amp; 4D BIM execution</li></ul></div>'+arcFlow(innovationNodesV10,{vbH:340,height:320,compact:true})+'</div>';
+}
+
+// ============ 6. Remove Capital Lead Times · Class A entirely ============
+document.querySelector('#section-4-leadtime-a')?.remove();
+document.querySelectorAll('.process-subnav [data-go="section-4-leadtime-a"]').forEach(b=>{ b.dataset.go='section-4-leadtime-bc'; });
+{
+  const idx = slideOrder.indexOf('section-4-leadtime-a');
+  if(idx > -1) slideOrder.splice(idx, 1);
+}
+{
+  const proposalGroupV10 = [...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='PROPOSAL');
+  if(proposalGroupV10){
+    proposalGroupV10.querySelector('[data-go="section-4-leadtime-a"]')?.remove();
+    const bcBtn = proposalGroupV10.querySelector('[data-go="section-4-leadtime-bc"]');
+    if(bcBtn) bcBtn.innerHTML = '<span></span>Capital Lead Times';
+    [...proposalGroupV10.querySelectorAll('.menu-slide')].forEach((b,i)=>{ const s=b.querySelector('span'); if(s) s.textContent=String(i+1).padStart(2,'0'); });
+  }
+}
+
+// ============ 7. Wire new About-HTL nav (adds LEED CERTIFICATIONS after HNI EXPERIENCE) ============
+const aboutNavV10 = '<nav class="about-nav"><button data-go="agenda">AGENDA</button><button data-go="about-who">WHO WE ARE</button><button data-go="about-hni">HNI EXPERIENCE</button><button data-go="about-leed">LEED CERTIFICATIONS</button><button data-go="hinduja-group">HINDUJA GROUP</button><button data-go="about-why">WHY HTL</button></nav>';
+document.querySelectorAll('#about-who .about-nav,#about-hni .about-nav,#hinduja-group .about-nav,#about-why .about-nav').forEach(n=>{ n.outerHTML = aboutNavV10; });
+leedV10.insertAdjacentHTML('beforeend', aboutNavV10);
+document.querySelectorAll('.about-nav button').forEach(b=>{
+  b.onclick = ()=>show(b.dataset.go);
+  b.classList.toggle('active', b.dataset.go===b.closest('.screen').id);
+});
+
+{
+  const aboutGroupV10 = [...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='ABOUT HTL');
+  if(aboutGroupV10 && !aboutGroupV10.querySelector('[data-go="about-leed"]')){
+    const anchor = aboutGroupV10.querySelector('[data-go="about-hni"]');
+    const btn = document.createElement('button'); btn.className='menu-slide'; btn.dataset.go='about-leed'; btn.innerHTML='<span></span>LEED Certifications'; btn.onclick=()=>{show('about-leed');closeDeckMenu()};
+    if(anchor) anchor.after(btn); else aboutGroupV10.appendChild(btn);
+    [...aboutGroupV10.querySelectorAll('.menu-slide')].forEach((b,i)=>{ const s=b.querySelector('span'); if(s) s.textContent=String(i+1).padStart(2,'0'); });
+  }
+}
+
+// ============ 8. Wire new Section-2 subnav (adds STAKEHOLDER MAPPING after FLOOR BIFURCATION) ============
+const projectNavV10 = '<nav class="project-subnav org-nav-v7"><button data-go="section-2">PROJECT UNDERSTANDING</button><button data-go="section-2-floor">FLOOR BIFURCATION</button><button data-go="section-2-stakeholder">STAKEHOLDER MAPPING</button><button data-go="section-2-site-report">SITE REPORTS</button><button data-go="section-2-org-chart">PROJECT ORGANIZATION</button></nav>';
+document.querySelectorAll('#section-2 .project-subnav,#section-2-floor .project-subnav,#section-2-site-report .project-subnav,#section-2-org-chart .project-subnav').forEach(n=>{ n.outerHTML = projectNavV10; });
+stakeholderV10.insertAdjacentHTML('beforeend', projectNavV10);
+document.querySelectorAll('.project-subnav').forEach(nav=>{
+  nav.querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.go===nav.closest('.screen').id);
+    b.onclick = ()=>show(b.dataset.go);
+  });
+});
+
+{
+  const projectGroupV10 = [...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='ABOUT THE PROJECT');
+  if(projectGroupV10 && !projectGroupV10.querySelector('[data-go="section-2-stakeholder"]')){
+    const anchor = projectGroupV10.querySelector('[data-go="section-2-floor"]');
+    const btn = document.createElement('button'); btn.className='menu-slide'; btn.dataset.go='section-2-stakeholder'; btn.innerHTML='<span></span>Stakeholder Mapping'; btn.onclick=()=>{show('section-2-stakeholder');closeDeckMenu()};
+    if(anchor) anchor.after(btn); else projectGroupV10.appendChild(btn);
+    [...projectGroupV10.querySelectorAll('.menu-slide')].forEach((b,i)=>{ const s=b.querySelector('span'); if(s) s.textContent=String(i+1).padStart(2,'0'); });
+  }
+}
+
+// ============ 9. slideOrder insertions ============
+if(!slideOrder.includes('about-leed')) slideOrder.splice(slideOrder.indexOf('about-hni')+1, 0, 'about-leed');
+if(!slideOrder.includes('section-2-stakeholder')) slideOrder.splice(slideOrder.indexOf('section-2-floor')+1, 0, 'section-2-stakeholder');
+
+updateDeckUI(document.querySelector('.screen.active')?.id||'intro');
+})();
+</script>
+<!-- V10_HNI_LEED_STAKEHOLDER_ARC_END -->
+
+
+
+<!-- V11_NEWWINS_LEED_ORG_SECTION3_START -->
+<style>
+/* v11: New Wins grid, LEED real logos, org chart clarity, challenges & execution integration, escalation reposition */
+.newwins-slide{background:#fff;color:#161718}
+.newwins-shell{height:100%;padding:4.2vh 3.7vw 60px;display:flex;flex-direction:column;overflow:auto}
+.newwins-head{flex:0 0 auto;border-bottom:1px solid #e4e4e2;padding-bottom:14px;margin-bottom:22px}
+.newwins-head .eyebrow{color:var(--red);font-size:10px;font-weight:850;letter-spacing:.19em}
+.newwins-head h2{margin:8px 0 0;font-size:clamp(30px,3.6vw,50px);line-height:.95;letter-spacing:-.03em}
+.newwins-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.win-card{background:#f7f7f5;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.win-card .win-photo{height:120px;background:#e9e9e6;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.win-card .win-photo img{width:100%;height:100%;object-fit:cover}
+.win-card .win-photo .wordmark-fallback{font-size:16px;font-weight:800;color:#26272a}
+.win-card .win-body{padding:14px 16px 16px}
+.win-card strong{display:block;font-size:14px;font-weight:800;color:#171718;line-height:1.25}
+.win-card .win-loc{display:block;margin-top:3px;font-size:11.5px;color:#767674}
+.win-card .win-stats{margin-top:12px;padding-top:10px;border-top:1px solid #dedede;display:grid;gap:5px}
+.win-card .win-stat{display:flex;gap:6px;font-size:10.5px}
+.win-card .win-stat b{color:#767674;font-weight:750;letter-spacing:.03em}
+.win-card .win-stat span{color:#171718;font-weight:650}
+@media(max-width:900px){.newwins-grid{grid-template-columns:repeat(2,1fr)}}
+
+.leed-logo-img{display:block;max-height:22px;max-width:120px;object-fit:contain;margin-bottom:8px}
+.leed-badge img{max-width:150px;max-height:150px;object-fit:contain}
+
+.challenges-slide,.execint-slide{background:#fff;color:#161718}
+.challenges-shell,.execint-shell{height:100%;padding:4.2vh 3.7vw 60px;display:flex;flex-direction:column;overflow:auto}
+.challenges-shell h2,.execint-shell h2{margin:0 90px 26px 0;font-size:clamp(22px,3.2vw,44px);letter-spacing:-.03em}
+.challenge-callout{border:1.5px solid #f3c9cb;background:#fdf1f1;border-radius:16px;padding:22px 26px;font-size:15px;line-height:1.65;color:#3a3a3a;max-width:900px}
+.challenge-callout b{color:#171718}
+.approach-label{color:#3a8a5c;font-size:10px;font-weight:850;letter-spacing:.15em;margin:28px 0 14px}
+.approach-list{display:grid;gap:10px;max-width:900px}
+.approach-item{display:flex;align-items:flex-start;gap:14px;background:#f7f7f5;border-radius:12px;padding:14px 18px}
+.approach-item .anum{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#e2f0e6;color:#3a8a5c;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.approach-item p{margin:0;font-size:13.5px;line-height:1.5;color:#333}
+
+.execint-steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:stretch;margin-bottom:24px}
+.execint-step{background:#f7f7f5;border-radius:12px;padding:18px 20px}
+.execint-step .day{color:var(--red);font-size:11px;font-weight:850;letter-spacing:.1em;margin-bottom:6px}
+.execint-step h4{margin:0 0 10px;font-size:16px}
+.execint-step p{margin:0;font-size:12.5px;line-height:1.5;color:#444}
+.execint-arrow{align-self:center;color:#c7c7c4;font-size:20px}
+.execint-key{border:1.5px solid #f3c9cb;background:#fdf1f1;border-radius:14px;padding:16px 20px;font-size:13.5px;line-height:1.55;color:#3a3a3a;margin-bottom:22px}
+.execint-key .exkey-label{color:var(--red);font-size:9.5px;font-weight:850;letter-spacing:.12em;display:block;margin-bottom:6px}
+.execint-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.execint-foot-card{background:#f7f7f5;border-radius:12px;padding:16px 18px}
+.execint-foot-card h5{margin:0 0 8px;font-size:13px}
+.execint-foot-card p{margin:0;font-size:11.5px;line-height:1.5;color:#555}
+@media(max-width:900px){.execint-steps{grid-template-columns:1fr}.execint-arrow{display:none}.execint-foot{grid-template-columns:1fr}}
+
+/* org chart clarity + supervisors regrouping */
+.org-connectors-v8 i{background:#c6c6c3}
+.org-connectors-v8 .main{background:var(--red)}
+.org-connectors-v8 .v{width:2.2px}
+.org-connectors-v8 .h{height:2.2px}
+.org-children-main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.org-children-main.two{grid-template-columns:repeat(2,minmax(0,1fr))}.org-children-main.one{grid-template-columns:1fr}
+.org-supervisors-label{color:#e78a8f;font-size:7px;font-weight:850;letter-spacing:.14em;margin:7px 0 5px;padding-top:6px;border-top:1px dashed #4d4d4d}
+.org-children-sup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.org-children-sup.one{grid-template-columns:1fr}
+.org-child.emphasis{border-color:var(--red)!important}
+.org-child small{display:none!important}
+</style>
+<script>
+(function(){
+const A11 = {"leed_ubs": "/media/58e3c6dc2bbe68d6.png", "leed_dbs": "/media/764aee01cd38b44a.png", "leed_citibank": "/media/14bd1ca09abd2ae0.png", "leed_bharatpetroleum": "/media/7cfcd329c5907641.png", "leed_jmfinancial": "/media/cfb376fe6021cce9.png", "leed_tiaa": "/media/177aceb0736e869b.png", "leed_crisil": "/media/72f9823620a96048.png", "leed_microsoft": "/media/f0d7261b45f83b08.png", "leed_infor": "/media/2d512219d47f4ee7.png", "leed_standardpoors": "/media/e36031aee13fb9e3.png", "leed_phoenix": "/media/4a36e5bf0c0927c2.png", "leed_elcome": "/media/6d27acb36199424b.png", "leed_usgbc": "/media/28d597f09e6df749.png", "nw_adani": "/media/1530d6c5ee371aa4.jpg", "nw_hinduja_diag": "/media/67062c502344b1bf.jpg", "nw_siemens": "/media/4dcfebd78c9b9d95.jpg", "nw_ather": "/media/45b985a4f88bfed1.jpg", "nw_ctrls": "/media/cc322f386e9c673c.jpg", "nw_mastercard": "/media/147b866ee8096dcb.jpg", "nw_philips": "/media/c60701e482ec885f.jpg"};
+
+// ============ 1. New Wins section (#about-newwins) — inserted after Who We Are ============
+const winsData = [
+  {img:'nw_ctrls', name:'Ctrl S', loc:'Hyderabad', stats:[['MW:','42.8'],['SCOPE:','MEP']]},
+  {img:'nw_ctrls', name:'BOM 10', loc:'Mumbai', stats:[['AREA:','25 MW'],['SCOPE:','HVAC']]},
+  {img:'nw_hinduja_diag', name:'Hinduja Diagnostic Centre', loc:'Mumbai', stats:[['AREA:','88k'],['SCOPE:','MEP']]},
+  {img:'nw_adani', name:'Adani Connex', loc:'Mumbai', stats:[['MW:','80'],['SCOPE:','Fire Fighting & Plumbing']]},
+  {img:null, name:'Solitaire - 1,2 & 3', loc:'Pune', stats:[['AREA:','5L'],['SCOPE:','Electrical, Basebuild']]},
+  {img:'nw_siemens', name:'SIEMENS (Phase 1)', loc:'Sambhaji Nagar', stats:[['AREA:','6K'],['SCOPE:','Electrical & HVAC']]}
+];
+const winCardsHTML = winsData.map(w=>{
+  const photo = w.img ? '<img src="'+A11[w.img]+'" alt="'+w.name+'">' : '<div class="wordmark-fallback">'+w.name.split(' ')[0]+'</div>';
+  const stats = w.stats.map(s=>'<div class="win-stat"><b>'+s[0]+'</b><span>'+s[1]+'</span></div>').join('');
+  return '<article class="win-card"><div class="win-photo">'+photo+'</div><div class="win-body"><strong>'+w.name+'</strong><span class="win-loc">'+w.loc+'</span><div class="win-stats">'+stats+'</div></div></article>';
+}).join('');
+let newWinsV11 = document.querySelector('#about-newwins');
+if(!newWinsV11){
+  newWinsV11 = document.createElement('section');
+  newWinsV11.id='about-newwins'; newWinsV11.className='screen newwins-slide';
+  document.querySelector('#sections').appendChild(newWinsV11);
+}
+newWinsV11.innerHTML = '<div class="newwins-shell"><header class="newwins-head"><div class="eyebrow">PROJECTS</div><h2>NEW<span> WINS</span></h2></header><div class="newwins-grid">'+winCardsHTML+'</div></div>';
+
+// ============ 2. LEED — real logos + real USGBC badge ============
+const leedDataV11 = [
+  {name:'UBS', loc:'Pune, Navi Mumbai', area:'3 lakh sq.ft', logo:'leed_ubs'},
+  {name:'Infor', loc:'Hyderabad', area:'4 lakh sq.ft', logo:'leed_infor'},
+  {name:'JM Financial', loc:'Mumbai', area:'0.9 lakh sq.ft', logo:'leed_jmfinancial'},
+  {name:'DBS', loc:'Mumbai', area:'1.35 lakh sq.ft', logo:'leed_dbs'},
+  {name:'TIAA', loc:'Mumbai', area:'1 lakh sq.ft', logo:'leed_tiaa'},
+  {name:'Morgan Stanley', loc:'Mumbai, Bangalore', area:'1.80 lakh sq.ft'},
+  {name:'Crisil', loc:'Mumbai', area:'1.25 lakh sq.ft', logo:'leed_crisil'},
+  {name:'Citibank', loc:'Mumbai', area:'0.5 lakh sq.ft', logo:'leed_citibank'},
+  {name:'Bharat Petroleum', loc:'Pune', area:'2 lakh sq.ft', logo:'leed_bharatpetroleum'},
+  {name:'Microsoft', loc:'Hyderabad', area:'4 lakh sq.ft', logo:'leed_microsoft'},
+  {name:'Elcome', loc:'Navi Mumbai (MIDC)', area:'1.0 lakh sq.ft', rating:'Platinum', logo:'leed_elcome'},
+  {name:'Standard &amp; Poor’s', loc:'Ahmedabad', area:'3 lakh sq.ft', rating:'Gold', logo:'leed_standardpoors'},
+  {name:'Phoenix', loc:'Hyderabad', area:'2 lakh sq.ft', rating:'Gold', logo:'leed_phoenix'}
+];
+const leedCardsHTMLV11 = leedDataV11.map(c=>{
+  const pill = c.rating ? '<div class="leed-rating '+c.rating.toLowerCase()+'">'+c.rating+'</div>' : '';
+  const logo = c.logo ? '<img class="leed-logo-img" src="'+A11[c.logo]+'" alt="'+c.name+' logo">' : '';
+  return '<div class="leed-card">'+pill+logo+'<strong>'+c.name+'</strong><span class="leed-loc">'+c.loc+'</span><span class="leed-area">'+c.area+'</span></div>';
+}).join('');
+const leedV11 = document.querySelector('#about-leed');
+if(leedV11){
+  const badge = leedV11.querySelector('.leed-badge');
+  if(badge) badge.innerHTML = '<img src="'+A11.leed_usgbc+'" alt="LEED / USGBC Certified">';
+  const grid = leedV11.querySelector('.leed-grid');
+  if(grid) grid.innerHTML = leedCardsHTMLV11;
+}
+
+// ============ 3. Remove Avaada from the intro logo wall ============
+{
+  const AVAADA_PREFIX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMwAAABrCAYAAAA7O22kAAAAtGVYSWZJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAA';
+  document.querySelectorAll('#logoField img.client-logo').forEach(img => {
+    if(img.src && img.src.indexOf(AVAADA_PREFIX) === 0) img.remove();
+  });
+  if(typeof logos !== 'undefined' && Array.isArray(logos)){
+    const idx = logos.findIndex(l => typeof l === 'string' && l.indexOf(AVAADA_PREFIX) === 0);
+    if(idx > -1) logos.splice(idx, 1);
+  }
+}
+
+// ============ 4. Org chart: separate Supervisors, clearer lines ============
+(function fixOrgChart(){
+  const orgChart = document.querySelector('#section-2-org-chart .org-chart');
+  if(!orgChart || orgChart.dataset.v11done) return;
+  orgChart.dataset.v11done = '1';
+  orgChart.querySelectorAll('.org-lane').forEach(lane=>{
+    const kids = lane.querySelector('.org-children');
+    if(!kids) return;
+    const children = [...kids.children];
+    const sup = children.filter(c=>c.classList.contains('emphasis'));
+    const main = children.filter(c=>!c.classList.contains('emphasis'));
+    sup.forEach(c=>{ const s=c.querySelector('small'); if(s) s.remove(); });
+    if(sup.length === 0) return;
+    const mainWrap = document.createElement('div');
+    mainWrap.className = 'org-children-main' + (main.length===1?' one':main.length===2?' two':'');
+    main.forEach(c=>mainWrap.appendChild(c));
+    const label = document.createElement('div');
+    label.className = 'org-supervisors-label';
+    label.textContent = 'SUPERVISORS';
+    const supWrap = document.createElement('div');
+    supWrap.className = 'org-children-sup' + (sup.length===1?' one':'');
+    sup.forEach(c=>supWrap.appendChild(c));
+    kids.replaceWith(mainWrap);
+    mainWrap.after(label, supWrap);
+  });
+})();
+
+// ============ 5. New section-3 slides: Challenges & Logistics, Execution Integration ============
+function makeSection3Slide(id, cls, kicker, bodyHTML){
+  let s = document.querySelector('#'+id);
+  if(!s){
+    s = document.createElement('section');
+    s.id = id; s.className = 'screen '+cls;
+    document.querySelector('#sections').appendChild(s);
+  }
+  s.dataset.bodyHTML = '1';
+  return s;
+}
+
+const challengesBody = '<h2><strong>CHALLENGES</strong> - LOCATION &amp; LOGISTICS</h2>'
+  + '<div class="challenge-callout">Hinduja House sits on a <b>prime, high-visibility corridor</b> (Dr Annie Besant Road, Worli) with <b>heavy surrounding vehicular &amp; pedestrian movement</b>, and coastal-urban exposure that raises the risk of <b>corrosion</b> to stored MEP material and exposed fixtures.</div>'
+  + '<div class="approach-label">HTL\'S APPROACH</div>'
+  + '<div class="approach-list">'
+  + '<div class="approach-item"><div class="anum">01</div><p>Protected, weatherproof material staging &amp; handling protocols to guard against corrosion during storage and transit.</p></div>'
+  + '<div class="approach-item"><div class="anum">02</div><p>Anti-corrosive treatment / wrapping for exposed MEP components awaiting installation.</p></div>'
+  + '<div class="approach-item"><div class="anum">03</div><p>Controlled, scheduled movement of equipment and material through site access points to minimise congestion.</p></div>'
+  + '<div class="approach-item"><div class="anum">04</div><p>Close coordination with site security &amp; traffic marshals for timed, low-disruption deliveries.</p></div>'
+  + '</div>';
+
+const execintBody = '<h2><strong>EXECUTION</strong> INTEGRATION</h2>'
+  + '<div class="execint-steps">'
+  + '<div class="execint-step"><div class="day">DAY 1</div><h4>Temporary Installation</h4><p>MEP installed to facilitate <b>CFO (Chief Fire Officer) approval</b> and enable occupation of the office.</p></div>'
+  + '<div class="execint-arrow">&#8594;</div>'
+  + '<div class="execint-step"><div class="day">DAY 2</div><h4>Actual Architectural Layout</h4><p>Systems modified &amp; realigned to match the <b>actual architectural layout</b> as it is finalised.</p></div>'
+  + '<div class="execint-arrow">&#8594;</div>'
+  + '<div class="execint-step"><div class="day">DAY 3</div><h4>Interior Coordination</h4><p>Final coordination of MEP elements as per the <b>finished interior design</b> intent.</p></div>'
+  + '</div>'
+  + '<div class="execint-key"><span class="exkey-label">KEY CHALLENGE</span>Managing the transition from <b>Day 1 to Day 2 without impacting the programme</b>, while minimising modifications and snags during the interior stage.</div>'
+  + '<div class="execint-foot">'
+  + '<div class="execint-foot-card"><h5>Needs Clarification</h5><p>Whether CFO approval for the office and residential components will fall on <b>separate dates</b>. HTL is targeting <b>office completion by November 2028</b> — to be factored into the programme and milestone strategy.</p></div>'
+  + '<div class="execint-foot-card"><h5>Stilt Floor Strategy</h5><p>The stilt floor is the common entry for both office &amp; residential. Its MEP approach should <b>anticipate future interior requirements</b>, closely coordinated with architects &amp; interior consultants to minimise rework.</p></div>'
+  + '<div class="execint-foot-card"><h5>HTL\'s Interior Coordination Value</h5><p>HTL coordinates directly with interior consultants &amp; architects wherever MEP elements (e.g. sprinklers) must align with final interior intent — positioning HTL well for the interior package.</p></div>'
+  + '</div>';
+
+let challengesV11 = document.querySelector('#section-3-challenges');
+if(!challengesV11){
+  challengesV11 = document.createElement('section');
+  challengesV11.id='section-3-challenges'; challengesV11.className='screen challenges-slide';
+  document.querySelector('#sections').appendChild(challengesV11);
+}
+let execintV11 = document.querySelector('#section-3-execution-integration');
+if(!execintV11){
+  execintV11 = document.createElement('section');
+  execintV11.id='section-3-execution-integration'; execintV11.className='screen execint-slide';
+  document.querySelector('#sections').appendChild(execintV11);
+}
+
+// ============ 6. Rebuild strategy subnav (6 tabs) incl. repositioned Escalation Matrix ============
+const strategyNavV11 = '<nav class="strategy-subnav"><button data-go="section-3">EXECUTION STRATEGY</button><button data-go="section-3-challenges">CHALLENGES &amp; LOGISTICS</button><button data-go="section-3-execution-integration">EXECUTION INTEGRATION</button><button data-go="section-3-schedule">HOUSE PLANNING SCHEDULE</button><button data-go="section-3-procurement">PROCUREMENT TRACKER</button><button data-go="section-4-escalation">ESCALATION MATRIX</button></nav>';
+challengesV11.innerHTML = '<div class="challenges-shell">'+challengesBody+'</div>'+strategyNavV11;
+execintV11.innerHTML = '<div class="execint-shell">'+execintBody+'</div>'+strategyNavV11;
+document.querySelectorAll('#section-3 .strategy-subnav,#section-3-schedule .strategy-subnav,#section-3-procurement .strategy-subnav').forEach(n=>{ n.outerHTML = strategyNavV11; });
+
+// repurpose the escalation matrix's own subnav (was process-subnav) to the strategy-subnav, and update its kicker
+const escV11 = document.querySelector('#section-4-escalation');
+if(escV11){
+  const oldNav = escV11.querySelector('.process-subnav');
+  if(oldNav) oldNav.outerHTML = strategyNavV11;
+  const kickerEl = escV11.querySelector('.process-head .kicker');
+  if(kickerEl) kickerEl.textContent = "03 · KEY CHALLENGES & HTL'S EXECUTION STRATEGY";
+}
+
+document.querySelectorAll('.strategy-subnav').forEach(nav=>{
+  nav.querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.go===nav.closest('.screen').id);
+    b.onclick = ()=>show(b.dataset.go);
+  });
+});
+
+// remove Escalation Matrix tab from the Processes & Systems (section-4) subnav
+document.querySelectorAll('#section-4 .process-subnav,#section-4-leadership .process-subnav,#section-4-delivery .process-subnav,#section-4-leadtime-bc .process-subnav,#section-4-innovation .process-subnav').forEach(nav=>{
+  const btn = nav.querySelector('[data-go="section-4-escalation"]');
+  if(btn) btn.remove();
+});
+
+// ============ 7. slideOrder: insert challenges/execution-integration, move escalation ============
+{
+  const iw = slideOrder.indexOf('about-who');
+  if(iw > -1 && !slideOrder.includes('about-newwins')) slideOrder.splice(iw+1, 0, 'about-newwins');
+}
+{
+  const i3 = slideOrder.indexOf('section-3');
+  if(i3 > -1 && !slideOrder.includes('section-3-challenges')){
+    slideOrder.splice(i3+1, 0, 'section-3-challenges', 'section-3-execution-integration');
+  }
+  const escIdx = slideOrder.indexOf('section-4-escalation');
+  if(escIdx > -1) slideOrder.splice(escIdx, 1);
+  const procIdx = slideOrder.indexOf('section-3-procurement');
+  if(procIdx > -1) slideOrder.splice(procIdx+1, 0, 'section-4-escalation');
+}
+
+// ============ 8. Deck-menu: insert New Wins, reorder Proposal group items ============
+{
+  const aboutGroupV11 = [...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='ABOUT HTL');
+  if(aboutGroupV11 && !aboutGroupV11.querySelector('[data-go="about-newwins"]')){
+    const anchor = aboutGroupV11.querySelector('[data-go="about-who"]');
+    const btn = document.createElement('button'); btn.className='menu-slide'; btn.dataset.go='about-newwins'; btn.innerHTML='<span></span>New Wins'; btn.onclick=()=>{show('about-newwins');closeDeckMenu()};
+    if(anchor) anchor.after(btn); else aboutGroupV11.appendChild(btn);
+    [...aboutGroupV11.querySelectorAll('.menu-slide')].forEach((b,i)=>{ const s=b.querySelector('span'); if(s) s.textContent=String(i+1).padStart(2,'0'); });
+  }
+}
+{
+  const proposalGroupV11 = [...menuLayer.querySelectorAll('.menu-group')].find(g=>g.querySelector('.menu-group-title')?.textContent.trim()==='PROPOSAL');
+  if(proposalGroupV11){
+    if(!proposalGroupV11.querySelector('[data-go="section-3-challenges"]')){
+      const anchor = proposalGroupV11.querySelector('[data-go="section-3"]');
+      const b1 = document.createElement('button'); b1.className='menu-slide'; b1.dataset.go='section-3-challenges'; b1.innerHTML='<span></span>Challenges & Logistics'; b1.onclick=()=>{show('section-3-challenges');closeDeckMenu()};
+      const b2 = document.createElement('button'); b2.className='menu-slide'; b2.dataset.go='section-3-execution-integration'; b2.innerHTML='<span></span>Execution Integration'; b2.onclick=()=>{show('section-3-execution-integration');closeDeckMenu()};
+      if(anchor){ anchor.after(b1); b1.after(b2); }
+    }
+    const escBtn = proposalGroupV11.querySelector('[data-go="section-4-escalation"]');
+    const procBtn = proposalGroupV11.querySelector('[data-go="section-3-procurement"]');
+    if(escBtn && procBtn){ procBtn.after(escBtn); }
+    [...proposalGroupV11.querySelectorAll('.menu-slide')].forEach((b,i)=>{ const s=b.querySelector('span'); if(s) s.textContent=String(i+1).padStart(2,'0'); });
+  }
+}
+
+// ============ 9. Project Understanding — corrected, non-duplicated content ============
+{
+  const facts = document.querySelector('#section-2 .project-facts');
+  if(facts){
+    facts.innerHTML = '<div class="project-fact"><b>Project Name</b><span>Hinduja House</span></div>'
+      + '<div class="project-fact wide"><b>Project brief</b><span>Luxury Mixed-use development comprising Hinduja office + family residence, 31 floors</span></div>'
+      + '<div class="project-fact"><b>Area</b><span>265,000 sq. ft.</span></div>'
+      + '<div class="project-fact"><b>Scope</b><span>Core and Shell MEP Works (Base Building)</span></div>'
+      + '<div class="project-fact"><b>Floors</b><span>31</span></div>';
+  }
+}
+
+// ============ 10. Stakeholder Mapping — rounder dots, mathematically perfect arc ============
+{
+  const wrap = document.querySelector('#section-2-stakeholder .stakeholder-arc-wrap');
+  if(wrap){
+    const nodes = [
+      {x:130, title:'PMC', sub:'JLL'},
+      {x:315, title:'Civil', sub:'Capacite'},
+      {x:500, title:'MEP Consultant', sub:'Rayls'},
+      {x:685, title:'Architect', sub:'SOM + TPA'},
+      {x:870, title:'Client', sub:'Hinduja'}
+    ];
+    const vbW=1000, vbH=264, baseY=230, peakY=50, midX=500, halfW=500;
+    const yAt = x => peakY + (baseY-peakY) * Math.pow((x-midX)/halfW, 2);
+    const p0x=0, p1x=1000;
+    const p0y=yAt(p0x), p1y=yAt(p1x), pmy=yAt(midX);
+    const ctrlY = 2*pmy - 0.5*(p0y+p1y);
+    const pathD = 'M '+p0x+','+p0y+' Q '+midX+','+ctrlY+' '+p1x+','+p1y;
+    const dots = nodes.map(n=>'<circle cx="'+n.x+'" cy="'+yAt(n.x)+'" r="13" fill="#ed1c24" stroke="#fff" stroke-width="3"/>').join('');
+    const svg = '<svg class="arc-flow-svg" viewBox="0 0 '+vbW+' '+vbH+'" preserveAspectRatio="none"><path d="'+pathD+'" fill="none" stroke="#e2e2df" stroke-width="2.5" stroke-linecap="round"/>'+dots+'</svg>';
+    const labels = nodes.map(n=>{
+      const left=(n.x/vbW*100).toFixed(2), top=(yAt(n.x)/vbH*100).toFixed(2);
+      return '<div class="arc-node" style="left:'+left+'%;top:'+top+'%">' + '<strong>'+n.title+'</strong><span>'+n.sub+'</span></div>';
+    }).join('');
+    wrap.innerHTML = '<div class="arc-flow" style="height:280px">'+svg+labels+'</div>';
+  }
+}
+
+updateDeckUI(document.querySelector('.screen.active')?.id||'intro');
+})();
+</script>
+<!-- V11_NEWWINS_LEED_ORG_SECTION3_END -->
+
+<!-- Single-slide embed mode (added for the Deck Platform MVP). Opt-in only:
+     capability-slides.html#slide=<screen id> shows just that one screen,
+     with the proposal's own CSS, fonts and animations, and none of the
+     deck-level navigation chrome. Without the hash the file behaves exactly
+     like HTL_Hinduja_Interactive_Proposal.html. -->
+<style>
+html.embed-slide #deck-menu-toggle,html.embed-slide #deck-menu-layer,html.embed-slide .deck-arrows,
+html.embed-slide .about-nav,html.embed-slide .project-subnav,html.embed-slide .strategy-subnav,html.embed-slide .process-subnav,
+html.embed-slide .fade-cover,html.embed-slide .controls{display:none!important}
+/* New Wins as a single slide: the grid fills the screen. Its cards were
+   fixed-height (120px photo + details), so 6 of them filled only the top
+   ~60% of the slide, plus 60px kept free for the (hidden) section nav.
+   Rows now share the full height; each photo takes what's left above its
+   details. */
+html.embed-slide #about-newwins .newwins-shell{padding-bottom:4.2vh;overflow:hidden}
+html.embed-slide #about-newwins .newwins-grid{flex:1 1 0;min-height:0;grid-auto-rows:minmax(0,1fr);align-content:stretch}
+html.embed-slide #about-newwins .win-card{display:flex;flex-direction:column;min-height:0;height:auto}
+html.embed-slide #about-newwins .win-photo{flex:1 1 0;min-height:0;height:auto}
+html.embed-slide #about-newwins .win-body{flex:0 0 auto}
+</style>
+<script>
+(function(){
+  var m = location.hash.match(/slide=([\w-]+)/);
+  if(!m) return;
+  var id = m[1], target = document.getElementById(id);
+  if(!target) return;
+  document.documentElement.classList.add('embed-slide');
+  // One screen per frame: navigating to another screen is a no-op here.
+  window.show = function(){};
+  var enter = document.querySelector('.title-enter-v9');
+  if(enter) enter.onclick = null;
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  if(id === 'intro'){
+    var replay = document.getElementById('replay');
+    if(replay) replay.click();
+    return;
+  }
+  // Activate after the first frame so the screen's own entrance
+  // transitions (keyed off .active) actually play.
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    target.classList.add('active');
+    try{ if(typeof updateDeckUI === 'function') updateDeckUI(id); }catch(e){}
+  }); });
+})();
+</script>
+</body></html>
