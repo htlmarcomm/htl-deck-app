@@ -15,6 +15,7 @@ const pgInstance = new EmbeddedPostgres({
   password: "htl-local",
   port,
   persistent: true,
+  initdbFlags: ["--encoding=UTF8", "--locale=C"], // jsonb needs UTF8 (Windows defaults to WIN1252)
 });
 if (fresh) await pgInstance.initialise();
 await pgInstance.start();

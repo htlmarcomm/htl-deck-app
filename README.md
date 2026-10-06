@@ -23,6 +23,10 @@ npm run seed             # creates the first Creator login
 npm run seed:projects    # loads the 2,182-project register
 ```
 
+## Updates
+
+Every push to `main` redeploys on Vercel. The build runs `npm run migrate` first, so new database tables are created automatically - no manual step.
+
 ## Local development (no accounts needed)
 
 ```bash

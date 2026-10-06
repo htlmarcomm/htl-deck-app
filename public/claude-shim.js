@@ -9,6 +9,12 @@
 (function () {
   "use strict";
   if (window.claude && window.claude.use) return;
+  // Public share viewer: no account, so no database or downloads - the page
+  // must never try to reach the signed-in APIs (they would bounce to /login).
+  if (window.__HTL_SHARE_TOKEN__) {
+    window.claude = { use: function () { return Promise.resolve(null); } };
+    return;
+  }
 
   var POLL_MS = 5000;
 
