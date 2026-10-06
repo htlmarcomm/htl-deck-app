@@ -48,7 +48,8 @@
 
   function refresh(col) {
     var w = watchers[col];
-    if (!w || w.busy) return Promise.resolve();
+    if (!w) return Promise.resolve();
+    if (w.busy) { w.again = true; return Promise.resolve(); }
     w.busy = true;
     return request("GET", "/api/db/" + encodeURIComponent(col), undefined, w.etag)
       .then(function (r) {
@@ -63,7 +64,15 @@
       .catch(function (e) {
         w.subs.slice().forEach(function (s) { if (s.err) try { s.err(e); } catch (x) {} });
       })
-      .then(function () { w.busy = false; });
+      .then(function () { w.busy = false; if (w.again) { w.again = false; refresh(col); } });
+  }
+
+  // after a write: refresh soon (debounced, and never awaited, so a burst of
+  // writes - e.g. loading the whole register - isn't slowed by redrawing)
+  var pending = {};
+  function scheduleRefresh(col) {
+    clearTimeout(pending[col]);
+    pending[col] = setTimeout(function () { refresh(col); }, 200);
   }
 
   function watch(col, cb, err) {
@@ -101,7 +110,7 @@
       set: function (data) {
         return request("PUT", url(col, id), data).then(function (r) {
           if (!r.ok) return fail(r);
-          return refresh(col);
+          scheduleRefresh(col);
         });
       },
       update: function (patch) {
@@ -112,7 +121,7 @@
       delete: function () {
         return request("DELETE", url(col, id)).then(function (r) {
           if (!r.ok) return fail(r);
-          return refresh(col);
+          scheduleRefresh(col);
         });
       },
     };

@@ -6,6 +6,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/": ["./src/frontend/**/*"],
     "/s/[token]": ["./src/frontend/**/*"],
+    "/api/seed/projects": ["./db/projects_seed.json"],
   },
   async headers() {
     return [

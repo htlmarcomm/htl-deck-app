@@ -4138,9 +4138,8 @@
   // the 5 existing sample decks' visibility, not decks created in a
   // live session.
 
-  if(currentUser){
-    enterApp();
-  }
+  // run once every inline script has executed (enterApp reaches code defined further down the page)
+  document.addEventListener("DOMContentLoaded", function(){ if(currentUser) enterApp(); });
 
   /* ---- Project database: shared register in the artifact db (collection "projects",
      22 chunk docs of up to 100 rows each). Everyone reads it; only Creator accounts get
@@ -4256,7 +4255,7 @@
     if(PDB.seeding || !PDB.db || !pdbIsCreator()) return;
     PDB.seeding = true;
     var msg = pdbEl("pdbSeedMsg"); msg.classList.remove("is-error"); msg.textContent = "Loading…";
-    fetch("projects_seed.json").then(function(r){ if(!r.ok) throw new Error("seed file missing"); return r.json(); }).then(function(rows){
+    fetch("/api/seed/projects", {credentials: "same-origin"}).then(function(r){ if(!r.ok) throw new Error("seed file missing"); return r.json(); }).then(function(rows){
       var jobs = [];
       for(var i = 0; i < rows.length; i += 100) jobs.push({id:"c" + String(i/100 + 1).padStart(3, "0"), rows:rows.slice(i, i+100)});
       var done = 0;
