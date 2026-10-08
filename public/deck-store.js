@@ -162,6 +162,14 @@
     return _fill.apply(this, arguments);
   };
 
+  // deleting slides can't be undone from the screen, so ask first
+  var _del = window.wsDeleteByIndices;
+  if (_del) window.wsDeleteByIndices = function (indices) {
+    var n = indices.length;
+    if (!window.confirm("Delete " + (n === 1 ? "this slide" : n + " slides") + " from the deck?\n\nThis can't be undone.")) return;
+    return _del.apply(this, arguments);
+  };
+
   /* ------------------------------------------------------------- saving */
   function setSaveText(t) { var el = $("wsAutosave"); if (el) el.textContent = t; }
   window.updateAutosaveText = function () {
@@ -206,6 +214,7 @@
     if (from === "workspace" && name !== "workspace" && DS.dirty) saveNow();
     var r = _act.apply(this, arguments);
     if (name === "dashboard") loadDecks();
+    if (name === "share") { navStack = ["dashboard", "share"]; if (window.updateBackLinks) updateBackLinks(); }
     if (name === "users") loadUsers();
     return r;
   };
@@ -218,6 +227,33 @@
     DS.deck = null; DS.creating = null; DS.name = ""; DS.client = ""; DS.versions = 0; DS.dirty = false;
     $("buildDeckName").value = ""; $("buildClient").value = "";
   }, true);
+
+  function updateBuildCount() {
+    var all = document.querySelectorAll("#buildScreen .thumb-card:not(.pending)");
+    var on = document.querySelectorAll("#buildScreen .thumb-card:not(.pending):not(.excluded)").length;
+    var el = $("buildCount");
+    if (el) el.textContent = on + " of " + all.length + " slides included.";
+  }
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("#buildScreen .thumb-card")) setTimeout(updateBuildCount, 0);
+    if (e.target.closest('[data-goto="build"]')) setTimeout(updateBuildCount, 50);
+  });
+  updateBuildCount();
+  // a deck needs a name before moving on (checked before the screen changes)
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("#buildNextBtn")) return;
+    var inp = $("buildDeckName");
+    if (inp && !inp.value.trim()) {
+      e.stopImmediatePropagation(); e.preventDefault();
+      inp.classList.add("is-missing"); inp.focus();
+      var w = $("buildWarn");
+      if (!w) { w = document.createElement("span"); w.id = "buildWarn"; w.className = "build-warn"; inp.parentNode.parentNode.insertBefore(w, $("buildNextBtn")); }
+      w.textContent = "Give the deck a name first.";
+    }
+  }, true);
+  $("buildDeckName") && $("buildDeckName").addEventListener("input", function () {
+    this.classList.remove("is-missing"); var w = $("buildWarn"); if (w) w.textContent = "";
+  });
 
   var nextBtn = $("buildNextBtn");
   if (nextBtn) nextBtn.addEventListener("click", function () {
@@ -275,14 +311,14 @@
       '<button class="deck-card__open" data-deck-open="' + esc(d.id) + '">' +
         '<div class="deck-card__thumb"><div class="thumb-stage-wrap"><div class="thumb-stage real-scope" data-key="' + esc(d.first_key || "title_page") + '"></div></div></div>' +
         '<div class="deck-card__body"><div class="deck-card__name">' + esc(d.name) + '</div>' +
-        '<div class="deck-card__meta">' + (d.client_name ? "for " + esc(d.client_name) : "no recipient") + '</div>' +
-        '<div class="deck-card__row"><span class="pill ' + (live ? "pill--live" : "pill--draft") + '">' + (live ? "shared" : "draft") + '</span>' +
-        '<span class="timestamp">' + (d.versions ? "v" + d.versions : "—") + ' &middot; ' + esc(ago(d.updated_at)) + '</span></div></div></button>' +
+        '<div class="deck-card__meta">' + (d.client_name ? "For " + esc(d.client_name) : "No client set") + '</div>' +
+        '<div class="deck-card__row"><span class="pill ' + (live ? "pill--live" : "pill--draft") + '">' + (live ? "Shared" : "Draft") + '</span>' +
+        '<span class="timestamp">' + (d.versions ? "Version " + d.versions + " &middot; " : "") + 'edited ' + esc(ago(d.updated_at)) + '</span></div></div></button>' +
       '<button type="button" class="deck-card__menu-btn" aria-label="More actions">&#8942;</button>' +
       '<div class="deck-card__menu">' +
-        '<button type="button" class="deck-card__menu-item" data-action="open">Open</button>' +
+        '<button type="button" class="deck-card__menu-item" data-action="open">Open &amp; edit</button>' +
         '<button type="button" class="deck-card__menu-item" data-action="duplicate">Duplicate</button>' +
-        '<button type="button" class="deck-card__menu-item" data-action="history">Version history</button>' +
+        '<button type="button" class="deck-card__menu-item" data-action="history">Versions &amp; links</button>' +
         (d.token ? '<button type="button" class="deck-card__menu-item" data-action="copylink">Copy share link</button>' : "") +
         '<button type="button" class="deck-card__menu-item" data-action="archive">' + (d.archived ? "Unarchive" : "Archive") + '</button>' +
       '</div>';
@@ -300,6 +336,13 @@
     fillSnippets(grid);
     applyDashboardFilter();
     refreshDashEmptyState();
+    var sub = $("dashSub");
+    if (sub) sub.textContent = window.__HTL_USER__.role === "creator" ? "Everyone's decks. Click one to keep editing it." : "Your decks. Click one to keep editing it.";
+    var em = $("dashEmpty");
+    if (em && !DS.decks.length) {
+      em.querySelector("strong").textContent = "No decks yet";
+      em.querySelector("span").textContent = "Click \u201c+ New deck\u201d (top right) to make your first one.";
+    }
     var dl = $("buildClientList");
     if (dl) {
       var seen = {};
@@ -351,14 +394,14 @@
   window.renderFinalizeModal = function () {
     var modal = $("finalizeModal"), first = !DS.versions;
     modal.innerHTML = first
-      ? '<h3>Finalize this deck</h3><p class="sub">This freezes the deck as version 1 and creates its share link. Anyone with the link can view it (read-only, no login).</p>' +
+      ? '<h3>Create the share link</h3><p class="sub">This saves the deck as it is now and gives you a link. Anyone with the link can view it (read-only, no login). You can keep editing afterwards.</p>' +
         '<div class="fin-error" id="finError" hidden></div>' +
-        '<div class="modal-footer"><button class="btn btn--ghost" data-goto="workspace">Cancel</button><button class="btn btn--accent" id="finalizeGo">Create &amp; get link</button></div>'
-      : '<h3>Finalize this deck</h3><p class="sub">This deck already has ' + DS.versions + ' finalized version' + (DS.versions > 1 ? "s" : "") + '. Choose what happens to its share link.</p>' +
-        '<div class="option-card selected" data-mode="keep"><div class="option-card__head"><span class="radio"></span>Keep previous version</div><p>Creates v' + (DS.versions + 1) + ' and a brand-new link. The existing link keeps showing the older version exactly as before.</p></div>' +
-        '<div class="option-card" data-mode="replace"><div class="option-card__head"><span class="radio"></span>Replace current version</div><p>Creates v' + (DS.versions + 1) + ' and points the existing link at it. Same address, new content.</p></div>' +
+        '<div class="modal-footer"><button class="btn btn--ghost" data-goto="workspace">Go back</button><button class="btn btn--accent" id="finalizeGo">Create link</button></div>'
+      : '<h3>Share the updated deck</h3><p class="sub">This deck has already been shared. What should happen to the link?</p>' +
+        '<div class="option-card selected" data-mode="keep"><div class="option-card__head"><span class="radio"></span>Make a new link</div><p>The old link keeps showing the old version. You get a second, new link for this version.</p></div>' +
+        '<div class="option-card" data-mode="replace"><div class="option-card__head"><span class="radio"></span>Update the existing link</div><p>The link people already have will show this new version. Same address.</p></div>' +
         '<div class="fin-error" id="finError" hidden></div>' +
-        '<div class="modal-footer"><button class="btn btn--ghost" data-goto="workspace">Cancel</button><button class="btn btn--accent" id="finalizeGo">Finalize deck</button></div>';
+        '<div class="modal-footer"><button class="btn btn--ghost" data-goto="workspace">Go back</button><button class="btn btn--accent" id="finalizeGo">Share</button></div>';
     modal.querySelectorAll(".option-card").forEach(function (card) {
       card.addEventListener("click", function () {
         modal.querySelectorAll(".option-card").forEach(function (c) { c.classList.remove("selected"); });
@@ -368,7 +411,7 @@
     $("finalizeGo").addEventListener("click", function () {
       var btn = this, err = $("finError"), sel = modal.querySelector(".option-card.selected");
       var mode = sel ? sel.getAttribute("data-mode") : "keep";
-      btn.disabled = true; btn.textContent = "Working…"; err.hidden = true;
+      btn.disabled = true; btn.textContent = "Please wait…"; err.hidden = true;
       DS.dirty = true; // force a final save of exactly what is on screen
       saveNow().then(function () {
         if (!DS.deck) throw new Error("The deck has not been saved yet - try again in a moment.");
@@ -379,7 +422,7 @@
           activateScreen("share");
         });
       }).catch(function (e) {
-        btn.disabled = false; btn.textContent = mode === "keep" && DS.versions ? "Finalize deck" : "Create & get link";
+        btn.disabled = false; btn.textContent = DS.versions ? "Share" : "Create link";
         err.textContent = e.message; err.hidden = false;
       });
     });
@@ -417,29 +460,29 @@
 
   /* ------------------------------------------------------------- history */
   function showHistory(deck) {
-    $("historyTitle").textContent = (deck.name || "Deck") + " — version history";
+    $("historyTitle").textContent = (deck.name || "Deck") + " — versions & links";
     var list = $("historyList");
     list.innerHTML = '<div class="empty-state is-visible" style="border:none; padding:40px 20px;"><span>Loading…</span></div>';
     activateScreen("history");
     api("GET", "/api/decks/" + deck.id + "/versions").then(function (r) {
       if (!r.versions.length) {
-        list.innerHTML = '<div class="empty-state is-visible" style="border:none; padding:40px 20px;"><strong>No versions yet</strong><span>This deck hasn’t been finalized — finalize it once to create v1 and a share link.</span></div>';
+        list.innerHTML = '<div class="empty-state is-visible" style="border:none; padding:40px 20px;"><strong>Not shared yet</strong><span>Open the deck and choose “Finalize &amp; share” to create its first link.</span></div>';
         return;
       }
       list.innerHTML = r.versions.map(function (v, i) {
         var links = v.links.map(function (l) {
           return '<div class="hist-link" data-link="' + esc(l.id) + '" data-token="' + esc(l.token) + '">' +
             '<code>/s/' + esc(l.token) + '</code>' +
-            '<span class="pill ' + (l.revoked ? "pill--off" : "pill--live") + '">' + (l.revoked ? "revoked" : "live link") + '</span>' +
+            '<span class="pill ' + (l.revoked ? "pill--off" : "pill--live") + '">' + (l.revoked ? "Link off" : "Link on") + '</span>' +
             '<span class="timestamp">' + l.views + ' view' + (l.views === 1 ? "" : "s") + '</span>' +
             '<button class="btn btn--sm" data-hist="copy">Copy link</button>' +
             '<a class="btn btn--sm" href="' + esc(publicOrigin()) + '/s/' + esc(l.token) + '" target="_blank" rel="noopener" style="text-decoration:none;">Open</a>' +
-            '<button class="btn btn--sm" data-hist="' + (l.revoked ? "restore" : "revoke") + '">' + (l.revoked ? "Turn back on" : "Revoke") + '</button></div>';
+            '<button class="btn btn--sm" data-hist="' + (l.revoked ? "restore" : "revoke") + '">' + (l.revoked ? "Turn link on" : "Turn link off") + '</button></div>';
         }).join("");
         return '<div class="history-row" style="align-items:flex-start;"><div class="history-row__left" style="align-items:flex-start;">' +
           '<span class="history-row__version">v' + v.version_num + '</span><div><div><strong>' + (i === 0 ? "Latest version" : "Earlier version") + '</strong></div>' +
           '<div class="history-row__meta">Finalized ' + esc(ago(v.created_at)) + (v.created_by ? " by " + esc(v.created_by) : "") + '</div>' +
-          '<div class="hist-links">' + (links || '<span class="history-row__meta">No link points at this version.</span>') + '</div></div></div></div>';
+          '<div class="hist-links">' + (links || '<span class="history-row__meta">No link shows this version.</span>') + '</div></div></div></div>';
       }).join("");
     }).catch(function (e) { list.innerHTML = '<div class="empty-state is-visible" style="border:none;"><strong>Could not load</strong><span>' + esc(e.message) + '</span></div>'; });
   }
@@ -451,8 +494,8 @@
     var call = what === "revoke" ? api("DELETE", "/api/links/" + id) : api("PATCH", "/api/links/" + id, {});
     call.then(function () {
       var pill = row.querySelector(".pill"), off = what === "revoke";
-      pill.className = "pill " + (off ? "pill--off" : "pill--live"); pill.textContent = off ? "revoked" : "live link";
-      b.setAttribute("data-hist", off ? "restore" : "revoke"); b.textContent = off ? "Turn back on" : "Revoke";
+      pill.className = "pill " + (off ? "pill--off" : "pill--live"); pill.textContent = off ? "Link off" : "Link on";
+      b.setAttribute("data-hist", off ? "restore" : "revoke"); b.textContent = off ? "Turn link on" : "Turn link off";
     }).catch(function (er) { alert(er.message); });
   });
 
