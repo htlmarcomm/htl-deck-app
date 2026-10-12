@@ -205,8 +205,7 @@
   $("impTitle").addEventListener("input", function () { /* title only affects the slide */ });
 
   /* ---------------------------------------------------------------- add the slides */
-  $("impAdd").addEventListener("click", function () {
-    var a = current();
+  function insertTableSlides(after, a) {
     var pages = HTLTable.paginate(a.rows, 12);
     var weights = HTLTable.columnWeights(a.header, a.rows);
     var base = a.title || "Table";
@@ -220,13 +219,19 @@
         ],
       };
     });
-    WORKSPACE_SLIDES.splice.apply(WORKSPACE_SLIDES, [state.after + 1, 0].concat(slides));
+    WORKSPACE_SLIDES.splice.apply(WORKSPACE_SLIDES, [after + 1, 0].concat(slides));
     wsBuilt = false;
     initWorkspace();
-    selectWsSlide(state.after + 1);
-    var el = wsLeft.querySelector('.ws-slide[data-index="' + (state.after + 1) + '"]');
+    selectWsSlide(after + 1);
+    var el = wsLeft.querySelector('.ws-slide[data-index="' + (after + 1) + '"]');
     if (el) el.scrollIntoView({ block: "center" });
     markAutosaveDirty();
+  }
+  window.HTLInsertTableSlides = function (after, a) {
+    return loadScript("/table-import.js").then(function () { insertTableSlides(after, a); });
+  };
+  $("impAdd").addEventListener("click", function () {
+    insertTableSlides(state.after, current());
     close();
   });
 })();

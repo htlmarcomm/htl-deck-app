@@ -193,7 +193,7 @@
       if (!DS.deck || !DS.dirty) return;
       captureAll();
       DS.dirty = false;
-      return api("PUT", "/api/decks/" + DS.deck.id, { name: DS.name, client_name: DS.client || null, state: { slides: serialSlides() } })
+      return api("PUT", "/api/decks/" + DS.deck.id, { name: DS.name, client_name: DS.client || null, state: { slides: serialSlides(), sources: window.HTLSources ? HTLSources.exportState() : [] } })
         .then(function () { DS.err = false; window.wsLastSavedAt = Date.now(); window.updateAutosaveText(); })
         .catch(function (e) {
           DS.dirty = true; DS.err = true; window.updateAutosaveText();
@@ -226,6 +226,7 @@
     if (DS.dirty) saveNow();
     DS.deck = null; DS.creating = null; DS.name = ""; DS.client = ""; DS.versions = 0; DS.dirty = false;
     $("buildDeckName").value = ""; $("buildClient").value = "";
+    if (window.HTLSources) HTLSources.load([]);
   }, true);
 
   function updateBuildCount() {
@@ -362,6 +363,7 @@
       WORKSPACE_SLIDES.length = 0;
       slides.forEach(function (s) { WORKSPACE_SLIDES.push(s); });
       wsSelectedIndices = {};
+      if (window.HTLSources) HTLSources.load(d.state && d.state.sources);
       wsBuilt = false;
       window.wsLastSavedAt = Date.now();
       activateScreen("workspace");

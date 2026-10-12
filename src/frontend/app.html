@@ -3657,11 +3657,11 @@
       var total = weights.reduce(function(a, b){ return a + b; }, 0) || 1;
       var cols = weights.map(function(w){ return '<col style="width:' + (w / total * 100).toFixed(2) + '%">'; }).join('');
       var head = el.header.map(function(h, c){
-        return '<th><span data-cs-head="' + c + '">' + escapeHtml(h || ' ') + '</span></th>';
+        return '<th><span data-cs-head="' + c + '">' + escapeHtml(h || '—') + '</span></th>';
       }).join('');
       var body = el.rows.map(function(r, ri){
         return '<tr>' + r.map(function(v, c){
-          return '<td><span data-cs-cell="' + ri + ':' + c + '">' + escapeHtml(v || ' ') + '</span></td>';
+          return '<td><span data-cs-cell="' + ri + ':' + c + '">' + escapeHtml(v || '—') + '</span></td>';
         }).join('') + '<td class="cs-ctl"><button type="button" class="cs-row-del" data-cs-del-row="' + ri + '" title="Delete this row">&#10005;</button></td></tr>';
       }).join('');
       return '<div class="cs-table-wrap" data-cs-section data-cs-id="' + el.id + '" style="' + style + '">' +
@@ -5539,5 +5539,6 @@
 </script>
 <script src="/deck-store.js"></script>
 <script src="/table-slide.js"></script>
+<script src="/sources.js"></script>
 </body></html>
 </body></html>
