@@ -31,18 +31,23 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#f4f3ef", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", color: "#14140f" }}>
-      <form onSubmit={submit} style={{ width: 340, background: "#fff", border: "1px solid rgba(20,19,15,.12)", borderRadius: 16, padding: 28, boxShadow: "0 8px 24px -12px rgba(20,19,15,.25)" }}>
-        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>
-          HTL <span style={{ color: "#e5222a" }}>Deck Platform</span>
-        </div>
-        <p style={{ margin: "0 0 20px", fontSize: 13, color: "#6b6a63" }}>Sign in to build and share decks.</p>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "#6b6a63", marginBottom: 4 }}>Username</label>
-        <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoFocus style={inp} />
-        <label style={{ display: "block", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "#6b6a63", margin: "14px 0 4px" }}>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" style={inp} />
-        {error && <p style={{ color: "#e5222a", fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
-        <button disabled={busy} style={{ marginTop: 20, width: "100%", padding: "11px 0", border: 0, borderRadius: 10, background: "#e5222a", color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", opacity: busy ? 0.6 : 1 }}>
+    <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb", fontFamily: font, color: "#111827" }}>
+      <form onSubmit={submit} style={{ width: "100%", maxWidth: 384, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 32, boxShadow: "0 1px 2px 0 rgba(0,0,0,.05)", boxSizing: "border-box" }}>
+        <h1 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 700 }}>HTL Deck Platform</h1>
+        <p style={{ margin: "0 0 24px", fontSize: 14, color: "#6b7280" }}>Sign in to continue</p>
+        {error && (
+          <div style={{ marginBottom: 16, fontSize: 14, color: "#b91c1c", background: "#fef2f2", border: "1px solid #fee2e2", borderRadius: 8, padding: "8px 12px" }}>{error}</div>
+        )}
+        <label style={lbl}>Username</label>
+        <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoFocus required style={{ ...inp, marginBottom: 16 }} />
+        <label style={lbl}>Password</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required style={{ ...inp, marginBottom: 24 }} />
+        <button
+          disabled={busy}
+          onMouseOver={(e) => (e.currentTarget.style.background = "#dc2626")}
+          onMouseOut={(e) => (e.currentTarget.style.background = "#111827")}
+          style={{ width: "100%", padding: "9px 16px", border: 0, borderRadius: 8, background: "#111827", color: "#fff", fontWeight: 500, fontSize: 14, fontFamily: font, cursor: busy ? "default" : "pointer", opacity: busy ? 0.5 : 1, transition: "background .15s" }}
+        >
           {busy ? "Signing in..." : "Sign in"}
         </button>
       </form>
@@ -50,4 +55,6 @@ export default function LoginPage() {
   );
 }
 
-const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "10px 12px", border: "1px solid rgba(20,19,15,.22)", borderRadius: 8, fontSize: 14 };
+const font = "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const lbl: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 500, color: "#4b5563", marginBottom: 4 };
+const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 14, fontFamily: font, background: "#fff" };

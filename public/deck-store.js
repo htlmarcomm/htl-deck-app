@@ -181,6 +181,7 @@
     }
   };
   window.markAutosaveDirty = function () {
+    if (window.HTLHistory) window.HTLHistory.changed();
     DS.dirty = true;
     setSaveText("Saving…");
     clearTimeout(DS.timer);
@@ -203,6 +204,29 @@
     });
     return DS.chain;
   }
+  // used by Undo / Redo (workspace-tools.js): the whole deck as text, and back again
+  window.HTLDeckState = {
+    snapshot: function () {
+      captureAll();
+      return JSON.stringify({ slides: serialSlides(), sources: window.HTLSources ? HTLSources.exportState() : [] });
+    },
+    restore: function (json) {
+      var st = JSON.parse(json);
+      var active = wsActiveIndex, top = wsLeft ? wsLeft.scrollTop : 0;
+      WORKSPACE_SLIDES.length = 0;
+      st.slides.forEach(function (s) { WORKSPACE_SLIDES.push(s); });
+      wsSelectedIndices = {};
+      if (window.HTLSources) HTLSources.load(st.sources);
+      if (wsLeft) wsLeft.innerHTML = ""; // else initWorkspace()'s captureAll() copies the old screen over what we restore
+      wsBuilt = false;
+      window.initWorkspace();
+      if (WORKSPACE_SLIDES.length) {
+        try { selectWsSlide(Math.min(active, WORKSPACE_SLIDES.length - 1)); } catch (e) {}
+      }
+      if (wsLeft) wsLeft.scrollTop = top;
+      window.markAutosaveDirty();
+    }
+  };
   window.addEventListener("beforeunload", function (e) {
     if (DS.dirty) { e.preventDefault(); e.returnValue = ""; }
   });
@@ -315,7 +339,7 @@
         '<div class="deck-card__meta">' + (d.client_name ? "For " + esc(d.client_name) : "No client set") + '</div>' +
         '<div class="deck-card__row"><span class="pill ' + (live ? "pill--live" : "pill--draft") + '">' + (live ? "Shared" : "Draft") + '</span>' +
         '<span class="timestamp">' + (d.versions ? "Version " + d.versions + " &middot; " : "") + 'edited ' + esc(ago(d.updated_at)) + '</span></div></div></button>' +
-      '<button type="button" class="deck-card__menu-btn" aria-label="More actions">&#8942;</button>' +
+      '<button type="button" class="deck-card__menu-btn" aria-label="More actions">More &#9662;</button>' +
       '<div class="deck-card__menu">' +
         '<button type="button" class="deck-card__menu-item" data-action="open">Open &amp; edit</button>' +
         '<button type="button" class="deck-card__menu-item" data-action="duplicate">Duplicate</button>' +
