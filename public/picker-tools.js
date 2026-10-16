@@ -132,6 +132,10 @@
         if (m) shown++;
       });
       g.style.display = shown ? "" : "none";
+      Array.prototype.forEach.call(g.querySelectorAll(".sub-group"), function (sg) {
+        var vis = cardsOf(sg).some(function (c) { return c.style.display !== "none"; });
+        sg.style.display = vis ? "" : "none";
+      });
       if (shown) any = true;
     });
     // deck headings with nothing left under them
@@ -162,7 +166,32 @@
     });
   });
 
+  var subs = Array.prototype.slice.call(screen.querySelectorAll(".sub-group"));
+  subs.forEach(function (sg) {
+    var title = sg.querySelector(".sub-group__title");
+    var count = document.createElement("span");
+    count.className = "sub-count";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sub-select";
+    title.appendChild(count);
+    title.appendChild(btn);
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var cs = cardsOf(sg).filter(function (c) { return c.style.display !== "none"; });
+      var every = cs.every(isOn);
+      cs.forEach(function (c) { setOn(c, !every); });
+      refresh();
+    });
+  });
+
   function refresh() {
+    subs.forEach(function (sg) {
+      var cs = cardsOf(sg), on = cs.filter(isOn).length;
+      var cnt = sg.querySelector(".sub-count"), b = sg.querySelector(".sub-select");
+      if (cnt) cnt.textContent = on + " of " + cs.length + " ticked";
+      if (b) b.textContent = (cs.length && on === cs.length) ? "Clear all" : "Select all";
+    });
     var onAll = 0, totalAll = 0;
     groups.forEach(function (g) {
       var cs = cardsOf(g), on = cs.filter(isOn).length;
