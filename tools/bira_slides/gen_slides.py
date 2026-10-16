@@ -77,7 +77,7 @@ def title_html(lines, x, cys, size):
     for segs, cy in zip(lines, cys):
         spans = ""
         for (tx, w, red) in segs:
-            cls = "tb" if w == "b" else "tr"
+            cls = "tb" if w == "b" else ("tl" if w == "l" else "tr")
             if red: cls += " red"
             spans += '<span class="%s">%s</span>' % (cls, esc(tx))
         out.append('<div class="ttl" style="left:%.1fpx;top:%.1fpx;font-size:%.1fpx;">%s</div>' % (x, cy - size / 2, size, spans))
@@ -382,7 +382,7 @@ CSS = r"""
   .real-scope .pj{position:relative; width:1280px; height:720px; background:#fff; color:#161616; overflow:hidden; font-family:var(--font-slide);}
   .real-scope .pj *{box-sizing:border-box;}
   .real-scope .pj .t{position:absolute; white-space:nowrap; line-height:1; margin:0; padding:0;}
-  .real-scope .pj .tb{font-weight:700;} .real-scope .pj .tr{font-weight:400;}
+  .real-scope .pj .tb{font-weight:700;} .real-scope .pj .tr{font-weight:400;} .real-scope .pj .tl{font-weight:300;}
   .real-scope .pj .red{color:#d3262a;}
   .real-scope .pj .ttl{position:absolute; white-space:nowrap; line-height:1; color:#111; letter-spacing:-.01em;}
   .real-scope .pj .ph{position:absolute; background-size:cover; background-position:center; background-color:#e4e1da;}
@@ -404,6 +404,13 @@ CSS = r"""
   .real-scope .pj .card .pill-i{position:absolute; display:block; max-width:none;}
   .real-scope .pj .card .pill-t{position:absolute; display:block; background:#fff; color:#111; border-radius:999px; text-align:center; white-space:nowrap; font-weight:500; overflow:hidden;}
   .real-scope .pj-b .nm{color:#111;}
+  .real-scope .pj-e{background:#f4f3f5;}
+  .real-scope .pj .ecard{position:absolute; background:#fff; display:block;}
+  .real-scope .pj .enum{font-weight:300; color:#111;} .real-scope .pj .etitle{font-weight:400; color:#111; letter-spacing:-.005em;}
+  .real-scope .pj .edesc{font-weight:400;}
+  .real-scope .pj .ph.rnd2{border-radius:10px;}
+  .real-scope .pj .obar{position:absolute; background:#d9d9d9; display:block;}
+  .real-scope .pj .ovline{position:absolute; width:1px; background:#d8d8d8; display:block;}
 """
 
 if __name__ == "__main__":
