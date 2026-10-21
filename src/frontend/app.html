@@ -2426,7 +2426,7 @@
     <div class="pdb-note" id="pdbRoleNote"></div>
     <div class="pdb-seed" id="pdbSeed" hidden>
       <strong>The project list is empty</strong>
-      <span>Load the 2,182 HTL projects once. After that everyone can see them, and only Creators can change them.</span><br>
+      <span>Load the 2,239 HTL projects once. After that everyone can see them, and only Creators can change them.</span><br>
       <button type="button" class="btn btn--accent" id="pdbSeedBtn" hidden>Load the projects</button>
       <div class="pdb-msg" id="pdbSeedMsg"></div>
     </div>
@@ -2436,7 +2436,7 @@
         <div class="field-inline"><label for="pdbSector">Sector</label><select id="pdbSector"><option value="">All sectors</option></select></div>
         <div class="field-inline"><label for="pdbCity">City</label><select id="pdbCity"><option value="">All cities</option></select></div>
         <div class="field-inline"><label for="pdbScope">Scope</label><select id="pdbScope"><option value="">All scopes</option></select></div>
-        <div class="field-inline"><label for="pdbStatus">Status</label><select id="pdbStatus"><option value="">Any status</option><option>Completed</option><option>Ongoing</option><option>Unknown</option></select></div>
+        <div class="field-inline"><label for="pdbStatus">Status</label><select id="pdbStatus"><option value="">Any status</option><option>Completed</option><option>Ongoing</option><option>New Win</option><option>Unknown</option></select></div>
         <div class="field-inline"><label for="pdbMin">Min value (₹ Cr)</label><input id="pdbMin" type="number" min="0" step="0.5" style="width:110px"></div>
         <div class="field-inline"><label for="pdbSort">Sort</label><select id="pdbSort"><option value="value">Largest value</option><option value="area">Largest area</option><option value="year">Newest</option><option value="name">Name A–Z</option></select></div>
       </div>
@@ -2448,7 +2448,7 @@
         <button type="button" class="link-btn" id="pdbClearPicks">Untick all</button>
       </div>
       <div class="pdb-table-wrap"><table class="pdb-table">
-        <thead><tr><th></th><th>Project</th><th>Sector</th><th>City</th><th>Scope</th><th class="num">Area (sq ft)</th><th class="num">Value</th><th>Year</th><th>Status</th><th>PMC</th><th id="pdbActHead"></th></tr></thead>
+        <thead><tr><th></th><th>Project</th><th>Sector</th><th>City</th><th>Scope</th><th class="num">Area (sq ft)</th><th>Capacity</th><th>Type</th><th class="num">Value</th><th>Year</th><th>Status</th><th>PMC</th><th id="pdbActHead"></th></tr></thead>
         <tbody id="pdbBody"></tbody>
       </table></div>
       <div class="pdb-pager"><button type="button" class="btn" id="pdbPrev">Prev</button><span id="pdbPageLbl"></span><button type="button" class="btn" id="pdbNext">Next</button></div>
@@ -2467,13 +2467,16 @@
         <div class="field-inline"><label for="pf_city">City</label><input id="pf_city"></div>
         <div class="field-inline"><label for="pf_location">Location</label><input id="pf_location"></div>
         <div class="field-inline"><label for="pf_area_sqft">Area (sq ft)</label><input id="pf_area_sqft" type="number" min="0" step="any"></div>
+        <div class="field-inline"><label for="pf_capacity">Capacity</label><input id="pf_capacity" placeholder="e.g. 10 MW"></div>
+        <div class="field-inline"><label for="pf_project_type">Type of project</label><input id="pf_project_type"></div>
         <div class="field-inline"><label for="pf_value_cr">Contract value (₹ Cr)</label><input id="pf_value_cr" type="number" min="0" step="any"></div>
         <div class="field-inline"><label for="pf_start_date">Start date</label><input id="pf_start_date" type="date"></div>
         <div class="field-inline"><label for="pf_end_date">End date</label><input id="pf_end_date" type="date"></div>
-        <div class="field-inline"><label for="pf_status">Status</label><select id="pf_status"><option>Completed</option><option>Ongoing</option><option>Unknown</option></select></div>
+        <div class="field-inline"><label for="pf_status">Status</label><select id="pf_status"><option>Completed</option><option>Ongoing</option><option>New Win</option><option>Unknown</option></select></div>
         <div class="field-inline"><label for="pf_pmc">PMC</label><input id="pf_pmc"></div>
         <div class="field-inline"><label for="pf_consultant">Consultant</label><input id="pf_consultant"></div>
         <div class="field-inline"><label for="pf_architect">Architect</label><input id="pf_architect"></div>
+        <div class="field-inline"><label for="pf_remarks">Remarks</label><input id="pf_remarks"></div>
         <div class="field-inline full"><label for="pf_description">Description</label><textarea id="pf_description"></textarea></div>
       </form>
       <datalist id="pdbSectorList"></datalist>
@@ -4688,7 +4691,7 @@
      22 chunk docs of up to 100 rows each). Everyone reads it; only Creator accounts get
      the edit UI. The db itself additionally refuses writes from anyone below editor level. ---- */
   var PDB = {db:null, chunks:{}, rows:[], filtered:[], page:1, size:40, picks:{}, editing:null, started:false, seeding:false};
-  var PDB_FIELDS = ["project_name","client_name","third_party","sector","scope","city","location","area_sqft","value_cr","start_date","end_date","status","pmc","consultant","architect","description"];
+  var PDB_FIELDS = ["project_name","client_name","third_party","sector","scope","city","location","area_sqft","capacity","project_type","value_cr","start_date","end_date","status","pmc","consultant","architect","remarks","description"];
   var PDB_NUM = {area_sqft:1, value_cr:1};
   function pdbEl(id){ return document.getElementById(id); }
   function pdbEsc(s){ return String(s==null?"":s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -4749,10 +4752,10 @@
       return '<tr data-id="' + r.id + '"><td><input type="checkbox" data-pick="' + r.id + '"' + (PDB.picks[r.id] ? " checked" : "") + ' aria-label="Use on slides"></td>' +
         '<td class="name">' + pdbEsc(r.project_name) + '<small>' + pdbEsc(r.client_name || "") + '</small></td>' +
         '<td>' + pdbEsc(r.sector || "—") + '</td><td>' + pdbEsc(r.city || "—") + '</td><td>' + pdbEsc(r.scope || "—") + '</td>' +
-        '<td class="num">' + pdbFmtArea(r.area_sqft) + '</td><td class="num">' + pdbFmtVal(r.value_cr) + '</td>' +
+        '<td class="num">' + pdbFmtArea(r.area_sqft) + '</td><td>' + pdbEsc(r.capacity || "—") + '</td><td>' + pdbEsc(r.project_type || "—") + '</td><td class="num">' + pdbFmtVal(r.value_cr) + '</td>' +
         '<td>' + (r.year || "—") + '</td><td><span class="pdb-status ' + cls + '">' + pdbEsc(r.status || "Unknown") + '</span></td><td>' + pdbEsc(r.pmc || "—") + '</td>' +
         '<td>' + (creator ? '<button type="button" class="pdb-rowbtn" data-edit="' + r.id + '">Edit</button>' : "") + '</td></tr>';
-    }).join("") : '<tr><td colspan="11" class="pdb-empty">No projects match these filters.</td></tr>';
+    }).join("") : '<tr><td colspan="13" class="pdb-empty">No projects match these filters.</td></tr>';
     pdbEl("pdbCount").textContent = total.toLocaleString() + " of " + PDB.rows.length.toLocaleString() + " projects";
     pdbEl("pdbPageLbl").textContent = "Page " + PDB.page + " of " + pages;
     pdbEl("pdbPrev").disabled = PDB.page <= 1;
