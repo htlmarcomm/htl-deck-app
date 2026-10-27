@@ -1,0 +1,10 @@
+
+/* ===== project slides: one layout for all (photo panel + title, red-ruled label, cards) ===== */
+.real-scope .pj.ss-proj .pj-panel.ss-dim::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,24,28,.72), rgba(20,24,28,.55));}
+.real-scope .pj.ss-proj .ss-proj-title{z-index:3; max-width:calc(314px - var(--m-left) - 16px); white-space:normal; font-size:var(--fs-panel-title, 30px); line-height:var(--lh-heading); color:#fff;}
+.real-scope .pj.ss-proj .ss-proj-title .is-b{font-weight:var(--fw-bold);} .real-scope .pj.ss-proj .ss-proj-title .is-l{font-weight:var(--fw-light);}
+.real-scope .pj.ss-proj .ss-proj-label .t-caption{color:#1c1c1c; letter-spacing:.06em;}
+.real-scope .pj.ss-proj .ss-card .pj-nm{color:#1c1c1c;} .real-scope .pj.ss-proj .ss-card .pj-lc{color:#555;}
+.real-scope .pj.ss-proj .ss-kv > p{display:grid; grid-template-columns:calc(var(--fs-caption) * 6.4) minmax(0,1fr); column-gap:6px; margin:0; white-space:normal;}
+.real-scope .pj.ss-proj .ss-kv .ss-k{color:#222;} .real-scope .pj.ss-proj .ss-kv .ss-v{color:#555;}
+.real-scope .pj.ss-proj .ss-card-logo{position:absolute; height:24px; width:auto; max-width:none; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.25); background:#fff;}

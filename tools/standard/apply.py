@@ -29,7 +29,7 @@ for k, r in results.items():
     snip[k] = r["html"]
 s = s[:o] + json.dumps(snip, ensure_ascii=False, separators=(",", ":") if compact else None).replace("</script", "<\\/script") + s[e:]
 
-css = "".join(open(os.path.join(HERE, f), encoding="utf-8").read() for f in ("tokens.css", "flow.css", "templates.css"))
+css = "".join(open(os.path.join(HERE, f), encoding="utf-8").read() for f in ("tokens.css", "flow.css", "templates.css", "projects.css"))
 s = re.sub(r'<style id="slide-standard">.*?</style>\n?', "", s, flags=re.S)
 s = s.replace("</head>", '<style id="slide-standard">\n' + css + "</style>\n</head>", 1)
 if 'id="ss-font"' not in s:
