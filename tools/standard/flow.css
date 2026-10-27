@@ -1,0 +1,34 @@
+
+/* ===== flow-layout slides (the older blocks): same canvas, margins as padding, tokens win over block CSS ===== */
+.real-scope .ss-flow{position:relative !important; width:var(--slide-w) !important; height:var(--slide-h) !important; min-height:0 !important; box-sizing:border-box !important; overflow:hidden !important;
+  padding:calc(var(--m-top) + var(--ss-head-h, 70px) + var(--sp-heading-body)) var(--m-right) var(--m-bottom) var(--m-left) !important; margin:0 !important;}
+.real-scope .ss-flow.ss-hl-0{padding-top:var(--m-top) !important;}
+.real-scope .ss-flow.ss-hl-1{--ss-head-h:calc(var(--fs-heading) * var(--lh-heading));}
+.real-scope .ss-flow.ss-hl-2{--ss-head-h:calc(2 * var(--fs-heading) * var(--lh-heading));}
+.real-scope .ss-flow > .ss-head{position:absolute !important; left:var(--m-left) !important; top:var(--m-top) !important; margin:0 !important; padding:0 !important; max-width:calc(var(--slide-w) - var(--m-left) - var(--m-right)); white-space:normal; text-align:left !important;
+  font-family:var(--font-heading) !important; font-size:var(--fs-heading) !important; line-height:var(--lh-heading) !important; text-transform:uppercase !important; letter-spacing:0 !important;}
+.real-scope .ss-flow > .ss-head *{font-family:inherit !important; font-size:inherit !important; line-height:inherit !important;}
+.real-scope .ss-flow .t-sub{font-family:var(--font-text) !important; font-size:var(--fs-sub) !important; line-height:var(--lh-sub) !important;}
+.real-scope .ss-flow .t-body{font-family:var(--font-text) !important; font-size:var(--fs-body) !important; line-height:var(--lh-body) !important;}
+.real-scope .ss-flow .t-detail{font-family:var(--font-text) !important; font-size:var(--fs-detail) !important; line-height:var(--lh-detail) !important;}
+.real-scope .ss-flow .t-caption{font-family:var(--font-text) !important; font-size:var(--fs-caption) !important; line-height:var(--lh-caption) !important;}
+.real-scope .ss-flow .ss-left{text-align:left !important;}
+
+/* flow slides, version 2: section is the 1280x720 canvas; .ss-wrap carries the original layout and is moved as one block */
+.real-scope .ss-flow2{position:relative !important; width:var(--slide-w) !important; height:var(--slide-h) !important; min-height:0 !important; overflow:hidden !important; box-sizing:border-box !important; margin:0 !important;}
+.real-scope .ss-flow2 > .ss-head{position:absolute !important; left:var(--m-left) !important; top:var(--m-top) !important; margin:0 !important; padding:0 !important; white-space:normal; text-align:left !important; z-index:2;
+  font-family:var(--font-heading) !important; line-height:var(--lh-heading) !important; text-transform:uppercase !important; letter-spacing:0 !important;}
+.real-scope .ss-flow2 > .ss-head:not([style*="font-size"]){font-size:var(--fs-heading) !important;}
+.real-scope .ss-flow2 > .ss-head *{font-family:inherit !important; font-size:inherit !important; line-height:inherit !important; letter-spacing:0 !important;}
+.real-scope .ss-flow2 .t-sub{font-family:var(--font-text) !important; font-size:var(--fs-sub) !important; line-height:var(--lh-sub) !important;}
+.real-scope .ss-flow2 .t-body{font-family:var(--font-text) !important; font-size:var(--fs-body) !important; line-height:var(--lh-body) !important;}
+.real-scope .ss-flow2 .t-detail{font-family:var(--font-text) !important; font-size:var(--fs-detail) !important; line-height:var(--lh-detail) !important;}
+.real-scope .ss-flow2 .t-caption{font-family:var(--font-text) !important; font-size:var(--fs-caption) !important; line-height:var(--lh-caption) !important;}
+.real-scope .ss-flow2 .ss-left{text-align:left !important;}
+
+.real-scope .ss-flow2 > .ss-head{white-space:normal !important;}
+.real-scope .ss-flow2 > .ss-head *{white-space:normal !important;}
+/* heading kept in its own column / panel: same font, case and weights; column headings get the standard size */
+.real-scope .ss-flow2 .ss-head-col, .real-scope .ss-flow2 .ss-head-panel{font-family:var(--font-heading) !important; text-transform:uppercase !important; letter-spacing:0 !important; line-height:var(--lh-heading) !important; text-align:left !important;}
+.real-scope .ss-flow2 .ss-head-col:not([style*="font-size"]){font-size:var(--fs-heading) !important;} .real-scope .ss-flow2 .ss-head-col{margin:0 !important;}
+.real-scope .ss-flow2 .ss-head-col *, .real-scope .ss-flow2 .ss-head-panel *{font-family:inherit !important; font-size:inherit !important; line-height:inherit !important; letter-spacing:0 !important;}

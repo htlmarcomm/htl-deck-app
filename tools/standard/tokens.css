@@ -1,0 +1,53 @@
+/* ===== Slide Standard: design tokens =====================================
+   Brief values are in pt on a 960 x 540 pt canvas. Slides here are drawn on a
+   1280 x 720 px canvas, so 1 pt = 4/3 px (values below are the px results).
+   Every slide and template uses these variables only. */
+:root{
+  --slide-w:1280px; --slide-h:720px;
+  /* margins: 54 / 54 / 54 / 48 pt -> safe area 852 x 438 pt */
+  --m-left:72px; --m-right:72px; --m-top:72px; --m-bottom:64px;
+  /* grid: 12 columns of 54.5 pt, 18 pt gutter, 72.5 pt pitch */
+  --cols:12; --col-w:72.667px; --gutter:24px; --pitch:96.667px;
+  /* type */
+  --font-heading:"Raleway","Montserrat","Segoe UI",Arial,sans-serif;
+  --font-text:"TT Norms Pro","TT Norms","Segoe UI",Arial,sans-serif;
+  --fs-heading:66.667px; --lh-heading:1.05;   /* 50 pt, caps */
+  --fs-sub:34.667px;     --lh-sub:1.2;        /* 26 pt */
+  --fs-body:26.667px;    --lh-body:1.4;       /* 20 pt */
+  --fs-detail:18.667px;  --lh-detail:1.4;     /* 14 pt */
+  --fs-caption:12px;     --lh-caption:1.3;    /* 9 pt - added: dense card text (project grids, org chart, captions) */
+  --fw-bold:700; --fw-regular:400; --fw-light:300;
+  /* vertical spacing (multiples of 6 pt) */
+  --sp-eyebrow:8px;        /* 6 pt  */
+  --sp-heading-body:40px;  /* 30 pt */
+  --sp-paragraph:24px;     /* 18 pt */
+  --sp-section:48px;       /* 36 pt */
+  --sp-sub-content:16px;   /* 12 pt */
+  /* footer */
+  --logo-h:18.667px;       /* 14 pt */
+}
+
+/* ===== type styles ===== */
+.real-scope .t-heading, .ss-head{font-family:var(--font-heading); font-size:var(--fs-heading); line-height:var(--lh-heading); text-transform:uppercase; letter-spacing:0;}
+.real-scope .t-sub{font-family:var(--font-text); font-size:var(--fs-sub); line-height:var(--lh-sub);}
+.real-scope .t-body{font-family:var(--font-text); font-size:var(--fs-body); line-height:var(--lh-body);}
+.real-scope .t-detail{font-family:var(--font-text); font-size:var(--fs-detail); line-height:var(--lh-detail);}
+.real-scope .t-caption{font-family:var(--font-text); font-size:var(--fs-caption); line-height:var(--lh-caption);}
+.real-scope .is-b{font-weight:var(--fw-bold);} .real-scope .is-r{font-weight:var(--fw-regular);} .real-scope .is-l{font-weight:var(--fw-light);}
+
+/* ===== heading: top-left of the safe area on every slide ===== */
+.real-scope .ss-head{position:absolute; left:var(--m-left); top:var(--m-top); margin:0; padding:0; white-space:nowrap; z-index:2;}
+.real-scope .ss-head .is-b{font-weight:var(--fw-bold);} .real-scope .ss-head .is-r{font-weight:var(--fw-regular);} .real-scope .ss-head .is-l{font-weight:var(--fw-light);}
+
+/* ===== text block: stacked lines spaced by the type style's own line height ===== */
+.real-scope .ss-tb{position:absolute; margin:0; text-align:left; white-space:nowrap;}
+.real-scope .ss-tb > p{margin:0; padding:0; display:block;}
+
+/* ===== bottom margin: page number left, HTL logo right ===== */
+.real-scope .ss-foot{position:absolute; left:var(--m-left); right:var(--m-right); bottom:0; height:var(--m-bottom); display:flex; align-items:center; justify-content:space-between; pointer-events:none; z-index:3;}
+.real-scope .ss-pn{font-family:var(--font-text); font-size:var(--fs-caption); line-height:1; color:#6b6b6b; font-variant-numeric:tabular-nums;}
+.real-scope .ss-pn::before{content:counter(ss-page, decimal-leading-zero);}
+.real-scope .ss-logo{height:var(--logo-h); width:auto; max-width:none; display:block;}
+.ws-slide, .share-slide, .dr-item, .thumb-card{counter-increment:ss-page;}
+#wsLeft, #wsPreviewScroll, .deck-group, .dr-list, body{counter-reset:ss-page;}
+.real-scope .ss-tb.ss-tb--wrap{white-space:normal;}
