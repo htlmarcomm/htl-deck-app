@@ -185,12 +185,12 @@
     var body = tidyOn ? text.split("\n").map(tid).join("\n") : text;
     if (s && s.kind === "custom") {
       var pos = csDefaultPos(s);
-      s.elements.push({ id: csNewId(), type: "text", text: body, x: pos.x, y: pos.y, w: 760, size: "body" });
+      s.elements.push({ id: csNewId(), type: "text", text: body, x: pos.x, y: pos.y, w: 459.3, size: "body" });
       wsRerenderCustomSlide(wsActiveIndex);
     } else {
       // not a blank slide: put it on a new blank slide right after this one
       var after = wsActiveIndex;
-      var ns = { key: "custom_" + rid(), label: "Text", kind: "custom", slots: [], elements: [{ id: csNewId(), type: "text", text: body, x: 60, y: 60, w: 1000, size: "body" }] };
+      var ns = { key: "custom_" + rid(), label: "Text", kind: "custom", slots: [], elements: [{ id: csNewId(), type: "text", text: body, x: 72.0, y: 182.0, w: 459.3, size: "body" }] };
       WORKSPACE_SLIDES.splice(after + 1, 0, ns);
       wsBuilt = false; initWorkspace(); selectWsSlide(after + 1); changed();
     }

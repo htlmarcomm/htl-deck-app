@@ -86,6 +86,20 @@
 .real-scope .ss-flow2 .ss-head-col, .real-scope .ss-flow2 .ss-head-panel{font-family:var(--font-heading) !important; text-transform:uppercase !important; letter-spacing:0 !important; line-height:var(--lh-heading) !important; text-align:left !important;}
 .real-scope .ss-flow2 .ss-head-col:not([style*="font-size"]){font-size:var(--fs-heading) !important;} .real-scope .ss-flow2 .ss-head-col{margin:0 !important;}
 .real-scope .ss-flow2 .ss-head-col *, .real-scope .ss-flow2 .ss-head-panel *{font-family:inherit !important; font-size:inherit !important; line-height:inherit !important; letter-spacing:0 !important;}
+
+/* ===== "add slide" templates (blank / table / text from your files) =====
+   The app lays their canvas out at 1280 x 720 like every other slide, so the tokens apply unscaled (--k:1). */
+.cs-slide-canvas{--k:1;
+  --cs-m-left:calc(var(--m-left) * var(--k)); --cs-m-right:calc(var(--m-right) * var(--k)); --cs-m-top:calc(var(--m-top) * var(--k)); --cs-m-bottom:calc(var(--m-bottom) * var(--k));}
+.cs-slide-canvas .cs-text-block{font-family:var(--font-text); font-size:calc(var(--fs-body) * var(--k)); line-height:var(--lh-body); padding:0; letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-header{font-family:var(--font-heading); font-size:calc(var(--fs-heading) * var(--k)); line-height:var(--lh-heading); text-transform:uppercase; letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-sub{font-family:var(--font-text); font-size:calc(var(--fs-sub) * var(--k)); line-height:var(--lh-sub); letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-detail{font-family:var(--font-text); font-size:calc(var(--fs-detail) * var(--k)); line-height:var(--lh-detail);}
+/* footer in the bottom margin */
+.cs-slide-canvas .ss-foot{position:absolute; left:var(--cs-m-left); right:var(--cs-m-right); top:calc(var(--slide-h) - var(--cs-m-bottom)); height:var(--cs-m-bottom); bottom:auto; display:flex; align-items:center; justify-content:space-between; pointer-events:none; z-index:3;}
+.cs-slide-canvas .ss-pn{font-family:var(--font-text); font-size:calc(var(--fs-caption) * var(--k)); line-height:1; color:#6b6b6b;}
+.cs-slide-canvas .ss-pn::before{content:counter(ss-page, decimal-leading-zero);}
+.cs-slide-canvas .ss-logo{height:calc(var(--logo-h) * var(--k)); width:auto; display:block; max-width:none;}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&amp;display=swap" id="ss-font">
 </head><body>
@@ -4137,10 +4151,11 @@
   // several added in a row land visibly apart instead of stacked exactly
   // on top of each other -- the user drags them wherever they actually
   // want from there.
-  var CS_DEFAULT_BOX = { text: {w: 420, h: 90}, image: {w: 380, h: 260}, graph: {w: 460, h: 260}, table: {w: 1060, h: 0} };
+  var CS_DEFAULT_BOX = { text: {w: 459.3, h: 90}, image: {w: 380, h: 260}, graph: {w: 460, h: 260}, table: {w: 1136.0, h: 0} };
   function csDefaultPos(slide){
     var n = slide.elements.length;
-    return { x: 90 + (n % 6) * 36, y: 90 + (n % 6) * 36 };
+    // Slide Standard: first box on the left margin, under the heading area; later ones cascade
+    return { x: 72.0 + (n % 6) * 36, y: 182.0 + (n % 6) * 36 };
   }
 
   function csSectionStyle(el){
@@ -4239,6 +4254,7 @@
     } else {
       body += slide.elements.map(renderCsElement).join('');
     }
+    body += '<footer class="ss-foot"><span class="ss-pn"></span><img class="ss-logo" src="/media/a18705566cb26d29.jpg" alt="HTL"></footer>';
     return '<div class="cs-slide-canvas">' + body + '</div>';
   }
 

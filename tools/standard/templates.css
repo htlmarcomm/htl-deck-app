@@ -1,0 +1,14 @@
+
+/* ===== "add slide" templates (blank / table / text from your files) =====
+   The app lays their canvas out at 1280 x 720 like every other slide, so the tokens apply unscaled (--k:1). */
+.cs-slide-canvas{--k:1;
+  --cs-m-left:calc(var(--m-left) * var(--k)); --cs-m-right:calc(var(--m-right) * var(--k)); --cs-m-top:calc(var(--m-top) * var(--k)); --cs-m-bottom:calc(var(--m-bottom) * var(--k));}
+.cs-slide-canvas .cs-text-block{font-family:var(--font-text); font-size:calc(var(--fs-body) * var(--k)); line-height:var(--lh-body); padding:0; letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-header{font-family:var(--font-heading); font-size:calc(var(--fs-heading) * var(--k)); line-height:var(--lh-heading); text-transform:uppercase; letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-sub{font-family:var(--font-text); font-size:calc(var(--fs-sub) * var(--k)); line-height:var(--lh-sub); letter-spacing:0;}
+.cs-slide-canvas .cs-text-block.cs-t-detail{font-family:var(--font-text); font-size:calc(var(--fs-detail) * var(--k)); line-height:var(--lh-detail);}
+/* footer in the bottom margin */
+.cs-slide-canvas .ss-foot{position:absolute; left:var(--cs-m-left); right:var(--cs-m-right); top:calc(var(--slide-h) - var(--cs-m-bottom)); height:var(--cs-m-bottom); bottom:auto; display:flex; align-items:center; justify-content:space-between; pointer-events:none; z-index:3;}
+.cs-slide-canvas .ss-pn{font-family:var(--font-text); font-size:calc(var(--fs-caption) * var(--k)); line-height:1; color:#6b6b6b;}
+.cs-slide-canvas .ss-pn::before{content:counter(ss-page, decimal-leading-zero);}
+.cs-slide-canvas .ss-logo{height:calc(var(--logo-h) * var(--k)); width:auto; display:block; max-width:none;}

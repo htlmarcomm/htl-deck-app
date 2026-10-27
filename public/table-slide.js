@@ -216,8 +216,8 @@
       return {
         key: "custom_" + rid(), label: title.slice(0, 60), kind: "custom", slots: [],
         elements: [
-          { id: csNewId(), type: "text", text: title, x: 60, y: 34, w: 1060, size: "header" },
-          { id: csNewId(), type: "table", x: 60, y: 128, w: 1060, header: a.header.slice(), rows: rows.map(function (r) { return r.slice(); }), weights: weights.slice() },
+          { id: csNewId(), type: "text", text: title, x: 72.0, y: 72.0, w: 1136.0, size: "header" },
+          { id: csNewId(), type: "table", x: 72.0, y: 182.0, w: 1136.0, header: a.header.slice(), rows: rows.map(function (r) { return r.slice(); }), weights: weights.slice() },
         ],
       };
     });
