@@ -55,12 +55,13 @@
     menu = document.createElement("div");
     menu.className = "add-menu";
     menu.innerHTML =
+      '<button type="button" data-add="library"><strong>Slides from the library</strong><span>Any slide from the master decks</span></button>' +
       '<button type="button" data-add="blank"><strong>Blank slide</strong><span>Add text, photos and graphs yourself</span></button>' +
       '<button type="button" data-add="table"><strong>Table from a file or paste</strong><span>Excel, CSV or PDF, or cells copied from Excel</span></button>';
     document.body.appendChild(menu);
     var left = Math.min(Math.max(8, r.left + r.width / 2 - 130), window.innerWidth - 276);
     var top = r.bottom + 4;
-    if (top + 140 > window.innerHeight) top = Math.max(8, r.top - 130);
+    if (top + 210 > window.innerHeight) top = Math.max(8, r.top - 200);
     menu.style.left = left + "px"; menu.style.top = top + "px";
     menu.addEventListener("click", function (ev) {
       var b = ev.target.closest("[data-add]");
@@ -68,7 +69,8 @@
       ev.stopPropagation();
       var kind = b.getAttribute("data-add");
       closeMenu();
-      if (kind === "blank") wsInsertCustomSlideAt(after);
+      if (kind === "library") { if (window.HTLAddSlides) window.HTLAddSlides.open(after); }
+      else if (kind === "blank") wsInsertCustomSlideAt(after);
       else openImport(after);
     });
   }, true);

@@ -2,7 +2,9 @@
    1) Undo / Redo - buttons beside the zoom controls (and Ctrl+Z / Ctrl+Y). Every change to the deck is
       remembered (up to 40 steps); Undo puts the whole deck back the way it was.
    2) Logo / image upload - "Add a logo or image" in the right-hand panel puts a picture on the slide you
-      are looking at. Drag it to move it, drag its corner to resize it, x to remove it. */
+      are looking at. Drag it to move it, drag its corner to resize it, x to remove it.
+   3) Client logo - the Title Page gets a "+ Client logo" spot in its top-right corner (editing only) and a
+      "Client logo" button in the right-hand panel. The logo lands in that corner and can be moved and resized. */
 (function () {
   "use strict";
   function $(id) { return document.getElementById(id); }
@@ -24,6 +26,9 @@
     ".ovl-row img{width:44px; height:34px; object-fit:contain; background:#f3f4f6; border-radius:4px;}" +
     ".ovl-row span{flex:1; font-size:.78rem; color:var(--muted);}" +
     ".ovl-msg{font-size:.78rem; color:var(--accent); margin-top:6px;}" +
+    ".ws-logo-slot{position:absolute; z-index:29; left:81%; top:5%; width:15%; height:13%; box-sizing:border-box; border:2px dashed rgba(255,255,255,.85); border-radius:10px; background:rgba(255,255,255,.12); color:#fff; font:600 15px/1.2 Inter,system-ui,sans-serif; display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; padding:4px;}" +
+    ".ws-logo-slot:hover{background:rgba(255,255,255,.25); border-color:#fff;}" +
+    ".ws-logo-slot input{display:none;}" +
     ".ws-undo{display:flex; gap:4px; margin-right:10px;}" +
     ".ws-undo .ws-zoom-ctrl__btn{display:inline-flex; align-items:center; gap:5px; padding:0 10px; font-size:.74rem; font-weight:500;}" +
     ".ws-undo svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}";
@@ -141,6 +146,7 @@
       e.stopPropagation();
       d.remove();
       window.markAutosaveDirty();
+      logoSlots();
       if (window.renderWsRight) window.renderWsRight();
     });
     function rect() { return d.parentNode.getBoundingClientRect(); }
@@ -183,20 +189,21 @@
   var _init = window.initWorkspace;
   window.initWorkspace = function () {
     var r = _init.apply(this, arguments);
-    setTimeout(wireAll, 50); setTimeout(wireAll, 600);
+    setTimeout(function () { wireAll(); logoSlots(); }, 50); setTimeout(function () { wireAll(); logoSlots(); }, 600);
     return r;
   };
 
-  function addOverlay(file) {
+  function addOverlay(file, opts) {
+    opts = opts || {};
     var msg = document.querySelector(".ovl-msg");
     if (msg) msg.textContent = "";
-    var stage = slideStage(wsActiveIndex), block = rootBlock(stage);
+    var block = opts.block || rootBlock(slideStage(wsActiveIndex));
     if (!block) { if (msg) msg.textContent = "This slide can't take a picture."; return; }
     if (getComputedStyle(block).position === "static") block.style.position = "relative";
     var url = URL.createObjectURL(file);
     var d = document.createElement("div");
-    d.className = "ws-ovl";
-    d.style.left = "5%"; d.style.top = "6%"; d.style.width = "16%";
+    d.className = "ws-ovl" + (opts.cls ? " " + opts.cls : "");
+    d.style.left = (opts.left != null ? opts.left : 5) + "%"; d.style.top = (opts.top != null ? opts.top : 6) + "%"; d.style.width = (opts.width || 16) + "%";
     var img = document.createElement("img");
     img.alt = "";
     img.src = url;
@@ -206,10 +213,41 @@
     window.markAutosaveDirty();
     if (window.uploadImage) {
       window.uploadImage(file).then(function (stored) { img.src = stored; window.markAutosaveDirty(); if (window.renderWsRight) window.renderWsRight(); })
-        .catch(function (err) { d.remove(); alert("The picture could not be saved: " + (err && err.message || "upload failed")); window.markAutosaveDirty(); });
+        .catch(function (err) { d.remove(); alert("The picture could not be saved: " + (err && err.message || "upload failed")); window.markAutosaveDirty(); logoSlots(); });
     }
+    logoSlots();
     if (window.renderWsRight) window.renderWsRight();
   }
+
+  /* ------------------------------------------------------------ client logo on the Title Page */
+  var LOGO_W = 13;
+  function isTitle(block) { return !!block && block.classList.contains("block-title-page"); }
+  function addClientLogo(file, block) {
+    var old = block.querySelector(".ws-ovl--client");
+    if (old) old.remove();
+    addOverlay(file, { block: block, cls: "ws-ovl--client", left: 100 - 4 - LOGO_W, top: 5, width: LOGO_W });
+  }
+  function logoSlots() {
+    if (typeof wsLeft === "undefined" || !wsLeft) return;
+    Array.prototype.forEach.call(wsLeft.querySelectorAll(".ws-slide .block-title-page"), function (block) {
+      var slot = block.querySelector(".ws-logo-slot");
+      if (block.querySelector(".ws-ovl--client")) { if (slot) slot.remove(); return; }
+      if (slot) return;
+      if (getComputedStyle(block).position === "static") block.style.position = "relative";
+      slot = document.createElement("label");
+      slot.className = "ws-logo-slot";
+      slot.title = "Add the client's logo here";
+      slot.innerHTML = '<input type="file" accept="image/*">+ Client logo';
+      slot.addEventListener("click", function (e) { e.stopPropagation(); });
+      slot.querySelector("input").addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        this.value = "";
+        if (f) addClientLogo(f, block);
+      });
+      block.appendChild(slot);
+    });
+  }
+  if (typeof WS_EDIT_ONLY_SELECTOR !== "undefined" && WS_EDIT_ONLY_SELECTOR.indexOf("ws-logo-slot") < 0) WS_EDIT_ONLY_SELECTOR += ", .ws-logo-slot";
 
   function panel() {
     var right = $("wsRight");
@@ -226,7 +264,13 @@
         (slide.kind === "custom" ? "On a slide you built yourself, use the picture button on the slide." : "This slide is a fixed picture, so nothing can be added on top of it.") + "</p>";
     } else {
       var items = Array.prototype.slice.call(block.querySelectorAll(".ws-ovl"));
-      sec.innerHTML =
+      var logo = isTitle(block) ? block.querySelector(".ws-ovl--client") : null;
+      sec.innerHTML = (isTitle(block) ?
+        '<h5>Client logo <span class="ws-section__note">top-right corner</span></h5>' +
+        '<p class="ws-empty-note">Making this deck for a client? Add their logo. It goes in the top-right corner of this slide; drag it to move it, drag the red dot to resize it.</p>' +
+        '<label class="btn ovl-up ovl-client"><input type="file" accept="image/*">' + (logo ? "Replace client logo" : "+ Add client logo") + '</label>' +
+        (logo ? ' <button type="button" class="btn btn--sm" data-rm-client="1">Remove</button>' : "") +
+        '<div style="height:14px"></div>' : "") +
         '<h5>Add a logo or image <span class="ws-section__note">on top of this slide</span></h5>' +
         '<p class="ws-empty-note">Pick a picture from your computer. It appears on the slide: drag it to move it, drag the red dot to make it bigger or smaller.</p>' +
         '<label class="btn ovl-up"><input type="file" accept="image/*">+ Upload a logo or image</label>' +
@@ -235,12 +279,23 @@
           var im = it.querySelector("img");
           return '<div class="ovl-row" data-n="' + n + '"><img src="' + esc(im ? im.getAttribute("src") : "") + '" alt=""><span>Image ' + (n + 1) + ' on this slide</span><button type="button" class="btn btn--sm" data-rm="' + n + '">Remove</button></div>';
         }).join("");
-      sec.querySelector("input").addEventListener("change", function () {
+      sec.querySelector(".ovl-up:not(.ovl-client) input").addEventListener("change", function () {
         var f = this.files && this.files[0];
         this.value = "";
         if (f) addOverlay(f);
       });
+      var ci = sec.querySelector(".ovl-client input");
+      if (ci) ci.addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        this.value = "";
+        if (f) addClientLogo(f, block);
+      });
       sec.addEventListener("click", function (e) {
+        if (e.target.closest("[data-rm-client]")) {
+          var l = block.querySelector(".ws-ovl--client");
+          if (l) { l.remove(); window.markAutosaveDirty(); logoSlots(); window.renderWsRight(); }
+          return;
+        }
         var b = e.target.closest("[data-rm]");
         if (!b) return;
         var it = items[+b.getAttribute("data-rm")];
