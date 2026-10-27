@@ -51,3 +51,6 @@
 .ws-slide, .share-slide, .dr-item, .thumb-card{counter-increment:ss-page;}
 #wsLeft, #wsPreviewScroll, .deck-group, .dr-list, body{counter-reset:ss-page;}
 .real-scope .ss-tb.ss-tb--wrap{white-space:normal;}
+.real-scope .ss-tb.ss-tb--under{white-space:normal; text-align:center;}
+.real-scope .ss-tb.ss-tb--under > p{white-space:normal;}
+.real-scope .pj.ss-org > .ss-tb .t-caption.is-r{color:#555;}

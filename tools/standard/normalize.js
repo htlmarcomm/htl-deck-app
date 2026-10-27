@@ -243,7 +243,14 @@
     Array.prototype.forEach.call(sec.querySelectorAll(":scope > .ss-tb"), function (d) {
       if (!d._photo) return;
       var pr = rel(d._photo), w = rel(d).w;
-      d.style.left = (pr.w >= 180 && w <= pr.w + 2 ? pr.x : pr.x + pr.w / 2 - w / 2).toFixed(1) + "px";
+      if (pr.w >= 180) {   // large photo (project cards): caption starts on the photo's left edge
+        d.style.left = (w <= pr.w + 2 ? pr.x : pr.x + pr.w / 2 - w / 2).toFixed(1) + "px";
+      } else {             // small photo (people, logos): caption centred under it, wrapping to the photo's column
+        var cw = pr.w + 20;
+        d.classList.add("ss-tb--under");
+        d.style.left = (pr.x - 10).toFixed(1) + "px";
+        d.style.width = cw.toFixed(1) + "px";
+      }
     });
     return finish();
 
