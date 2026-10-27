@@ -221,7 +221,7 @@
 
   /* ------------------------------------------------------------ client logo on the Title Page */
   var LOGO_W = 13;
-  function isTitle(block) { return !!block && (block.classList.contains("block-title-page") || block.classList.contains("ss-cover")); }
+  function isTitle(block) { return !!block && block.classList.contains("block-title-page"); }
   function addClientLogo(file, block) {
     var old = block.querySelector(".ws-ovl--client");
     if (old) old.remove();
@@ -229,7 +229,7 @@
   }
   function logoSlots() {
     if (typeof wsLeft === "undefined" || !wsLeft) return;
-    Array.prototype.forEach.call(wsLeft.querySelectorAll(".ws-slide .block-title-page, .ws-slide .ss-cover"), function (block) {
+    Array.prototype.forEach.call(wsLeft.querySelectorAll(".ws-slide .block-title-page"), function (block) {
       var slot = block.querySelector(".ws-logo-slot");
       if (block.querySelector(".ws-ovl--client")) { if (slot) slot.remove(); return; }
       if (slot) return;
