@@ -1,0 +1,12 @@
+
+/* ===== Sectors We Deliver Across: fixed layout (does not re-flow with the window) ===== */
+.real-scope .ss-sectors{position:relative; width:var(--slide-w); height:var(--slide-h); overflow:hidden; background:#f4f2ee; color:#161616; font-family:var(--font-text); box-sizing:border-box;}
+.real-scope .ss-sectors .ss-sec-eyebrow{position:absolute; left:var(--m-left); top:calc(var(--m-top) - var(--sp-eyebrow) - var(--fs-caption) * var(--lh-caption)); margin:0; color:var(--c-accent, #e3262c); text-transform:uppercase; letter-spacing:.12em;}
+.real-scope .ss-sectors > .ss-head{color:#111; font-weight:var(--fw-bold); white-space:nowrap;}
+.real-scope .ss-sectors .ss-sec-card{position:absolute; background:#fff; border:1px solid #e6e2da; border-radius:12px; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; gap:var(--sp-sub-content);}
+.real-scope .ss-sectors .ss-sec-n{color:var(--c-accent, #e3262c); letter-spacing:.06em; margin:0;}
+.real-scope .ss-sectors .ss-sec-name{margin:0; color:#161616; font-weight:500;}
+
+/* Client Testimonials: same 1280 x 720 canvas as every slide */
+.real-scope .tm.ss-tm{width:var(--slide-w); height:var(--slide-h);}
+.real-scope .tm.ss-tm > .ss-head{color:#111;}

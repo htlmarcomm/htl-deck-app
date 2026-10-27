@@ -129,13 +129,16 @@ def label_of(sid):
 
 
 # ---------------------------------------------------------------- images from the original slide
+DEGRADIENT = json.load(open(os.path.join(HERE, "degradient_map.json"), encoding="utf-8")) if os.path.exists(os.path.join(HERE, "degradient_map.json")) else {}
+
+
 def images_of(key):
     h = orig[key]
     panel = re.search(r'class="pj-panel"[^>]*background-image:url\(([^)]+)\)', h)
     photos, badges = [], []
     # photo cards (with their logo badge) and plain photos, in the order they appear
     for m in re.finditer(r'<div class="(pj-card|pj-ph[^"]*)"[^>]*background-image:url\(([^)]+)\)">', h):
-        photos.append(m.group(2))
+        photos.append(DEGRADIENT.get(m.group(2), m.group(2)))   # caption gradient removed (degradient.py)
         badge = None
         if m.group(1) == "pj-card":
             end = h.find("</div>\n</div>", m.end())
