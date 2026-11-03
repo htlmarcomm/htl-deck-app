@@ -8,3 +8,12 @@
 .real-scope .pj.ss-proj .ss-kv > p{display:grid; grid-template-columns:calc(var(--fs-caption) * 6.4) minmax(0,1fr); column-gap:6px; margin:0; white-space:normal;}
 .real-scope .pj.ss-proj .ss-kv .ss-k{color:#222;} .real-scope .pj.ss-proj .ss-kv .ss-v{color:#555;}
 .real-scope .pj.ss-proj .ss-card-logo{position:absolute; height:24px; width:auto; max-width:none; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.25); background:#fff;}
+/* one block per project card (editable: add / remove / re-space, see public/project-cards.js) */
+.real-scope .pj.ss-proj .ss-pcard{position:absolute; box-sizing:border-box;}
+.real-scope .pj.ss-proj .ss-pcard .ss-pc-ph{position:relative; left:auto; top:auto; width:100%; height:var(--ss-ph); background-size:cover; background-position:center; background-color:#e8e5df;}
+.real-scope .pj.ss-proj .ss-pcard .ss-card-logo{left:8px; top:calc(var(--ss-ph) - 32px);}
+.real-scope .pj.ss-proj .ss-pcard .ss-pc-text{margin-top:8px; min-height:var(--ss-tx); white-space:normal;}
+.real-scope .pj.ss-proj .ss-pcard .ss-pc-text > p{margin:0;}
+.real-scope .pj.ss-proj .ss-pcard .ss-pc-rule{display:block; height:1px; background:#c8c8c8; margin:6px 0 7px;}
+.real-scope .pj.ss-proj .ss-pcard .ss-pc-kv{position:static;}
+.ws-slide .pj.ss-proj .ss-pcard .ws-card-remove{position:absolute; top:6px; right:6px; z-index:5;}

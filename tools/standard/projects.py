@@ -30,6 +30,9 @@ RULE_Y = LABEL_Y + CAP + 6
 GRID_Y = RULE_Y + 16
 
 
+PLACEHOLDER = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23e8e5df'/%3E%3Ctext x='200' y='158' font-family='Arial' font-size='22' fill='%23938c80' text-anchor='middle'%3EPoint here, then Change photo%3C/text%3E%3C/svg%3E"
+
+
 def esc(t):
     return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -190,23 +193,25 @@ def build(key):
     out.append('<h2 class="ss-head pj-ptitle ss-proj-title">%s</h2>' % t)
     out.append('<div class="ss-tb ss-proj-label" style="left:%s;top:%s;"><p class="t-caption is-b">%s</p></div>' % (f(X0), f(LABEL_Y), esc(label_of(sid))))
     out.append('<i class="pj-rule pj-red" style="left:%s;top:%s;width:%s;"></i>' % (f(X0), f(RULE_Y), f(M["r"] - X0)))
+    # each card is ONE block (photo / logo badge / name + location / rule / AREA-SCOPE lines), so the editor can
+    # add, remove and re-space cards (public/project-cards.js). Text rows have a shared height per slide (--ss-tx)
+    # so the rules and value lines line up across a row.
+    tx = CAP * (1 + (1 if has_loc else 0) + (1 if long_name else 0))
     i = 0
     y = GRID_Y
     for rc in rows:
         for j in range(rc):
             name, loc, kv = cards[i]
             x = X0 + j * (cw + GAP)
-            if i < len(photos):
-                out.append('<div class="pj-ph" style="left:%s;top:%s;width:%s;height:%s;background-image:url(%s)"></div>' % (f(x), f(y), f(cw), f(ph), photos[i]))
-            if i < len(badges) and badges[i]:
-                out.append('<img class="ss-card-logo" src="%s" alt="" style="left:%s;top:%s;">' % (badges[i], f(x + 8), f(y + ph - 8 - 24)))
-            ty = y + ph + 8
-            out.append('<div class="ss-tb ss-tb--wrap ss-card" style="left:%s;top:%s;width:%s;"><p class="t-caption is-b pj-nm">%s</p>%s</div>' % (
-                f(x), f(ty), f(cw), esc(name), '<p class="t-caption is-r pj-lc">%s</p>' % esc(loc) if loc else ""))
-            ry = ty + CAP * (1 + (1 if has_loc else 0) + (1 if long_name else 0)) + 6
-            out.append('<i class="pj-rule pj-thin" style="left:%s;top:%s;width:%s;"></i>' % (f(x), f(ry), f(cw)))
-            out.append('<div class="ss-tb ss-kv" style="left:%s;top:%s;width:%s;">%s</div>' % (
-                f(x), f(ry + 7), f(cw), "".join('<p class="t-caption"><span class="is-b ss-k">%s:</span><span class="is-r ss-v">%s</span></p>' % (esc(k), esc(v)) for k, v in kv)))
+            photo = photos[i] if i < len(photos) else PLACEHOLDER
+            badge = badges[i] if i < len(badges) else None
+            out.append('<div class="ss-pcard" style="left:%s;top:%s;width:%s;--ss-ph:%s;--ss-tx:%s;">' % (f(x), f(y), f(cw), f(ph), f(tx)) +
+                       '<div class="pj-ph ss-pc-ph" style="background-image:url(%s)"></div>' % photo +
+                       ('<img class="ss-card-logo" src="%s" alt="">' % badge if badge else "") +
+                       '<div class="ss-pc-text"><p class="t-caption is-b pj-nm">%s</p>%s</div>' % (esc(name), '<p class="t-caption is-r pj-lc">%s</p>' % esc(loc) if loc else "") +
+                       '<i class="ss-pc-rule"></i>' +
+                       '<div class="ss-pc-kv ss-kv">%s</div>' % "".join('<p class="t-caption"><span class="is-b ss-k">%s:</span><span class="is-r ss-v">%s</span></p>' % (esc(k), esc(v)) for k, v in kv) +
+                       '</div>')
             i += 1
         y += row_h + GAP
     out.append('<footer class="ss-foot"><span class="ss-pn"></span><img class="ss-logo" src="%s" alt="HTL"></footer>' % LOGO)
